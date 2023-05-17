@@ -42,27 +42,7 @@
 			"Enabled": false
 		},
 		{
-			"Name": "Jump",
-			"Enabled": true
-		},
-		{
 			"Name": "AnimationWarping",
-			"Enabled": true
-		},
-		{
-			"Name": "Sword_Content",
-			"Enabled": true
-		},
-		{
-			"Name": "Dash_Sprint",
-			"Enabled": true
-		},
-		{
-			"Name": "LockOn",
-			"Enabled": true
-		},
-		{
-			"Name": "GlaiveBoss_Plugin",
 			"Enabled": true
 		},
 		{
