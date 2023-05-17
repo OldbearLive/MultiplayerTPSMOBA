@@ -3,8 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "InputAction.h"
+#include "ModularGameplayActors/GSCModularCharacter.h"
 #include "CombatCharacter.generated.h"
+
+class UInputAction;
 
 UCLASS()
 class COMBATGASCOMPANION_API ACombatCharacter : public ACharacter
@@ -15,15 +20,37 @@ public:
 	// Sets default values for this character's properties
 	ACombatCharacter();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	
+	void FMove(const FInputActionValue& Value);
+
+	void FLook(const FInputActionValue& Value);
+
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputMappingContext* PilotInputMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* Move;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* Look;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* JumpAction;
+
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	class UCameraComponent* CameraComponent;
 };
