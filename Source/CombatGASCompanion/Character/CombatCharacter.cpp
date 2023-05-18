@@ -8,6 +8,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
+#include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACombatCharacter::ACombatCharacter()
@@ -23,6 +25,12 @@ ACombatCharacter::ACombatCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Follow Camera"));
 	CameraComponent->SetupAttachment(CameraBoom,USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw =false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
