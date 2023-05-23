@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
+#include "CombatGASCompanion/Weapon/CombatRangedWeapon.h"
 #include "ModularGameplayActors/GSCModularCharacter.h"
 #include "CombatCharacter.generated.h"
 
@@ -26,7 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&OutLifetimeProps)const override;
 
+	void SetOverlappingWeapon(ACombatRangedWeapon*Weapon);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -56,4 +59,10 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta = (AllowPrivateAccess ="true"))
 	class UWidgetComponent*OverheadWidget;
+
+	UPROPERTY(ReplicatedUsing=OnRep_OverlappingWeapon)
+	class ACombatRangedWeapon*OverlappingWeapon;
+
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(ACombatRangedWeapon*LastWeapon);
 };

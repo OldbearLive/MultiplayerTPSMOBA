@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ACombatCharacter::ACombatCharacter()
@@ -32,7 +33,21 @@ ACombatCharacter::ACombatCharacter()
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
 }
+//ReplicatedVariables
+void ACombatCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME_CONDITION(ACombatCharacter,OverlappingWeapon,COND_OwnerOnly);
+}
+
+
+// Called every frame
+void ACombatCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+}
 // Called when the game starts or when spawned
 void ACombatCharacter::BeginPlay()
 {
@@ -70,11 +85,7 @@ void ACombatCharacter::FLook(const FInputActionValue& Value)
 }
 
 
-// Called every frame
-void ACombatCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
+
 
 // Called to bind functionality to input
 void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -86,5 +97,39 @@ void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(Move,ETriggerEvent::Triggered,this,&ACombatCharacter::FMove);
 		EnhancedInputComponent->BindAction(Look,ETriggerEvent::Triggered,this,&ACombatCharacter::FLook);
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
+	}
+}
+
+
+void ACombatCharacter::SetOverlappingWeapon(ACombatRangedWeapon* Weapon)
+{
+
+	if(OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	OverlappingWeapon=Weapon;
+
+	if(IsLocallyControlled())
+	{
+		if(OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+		
+	}
+}
+
+void ACombatCharacter::OnRep_OverlappingWeapon(ACombatRangedWeapon*LastWeapon)
+{
+	
+	if(OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	if(LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
 	}
 }
