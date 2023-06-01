@@ -8,7 +8,15 @@ public class CombatGASCompanion : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","GASCompanion", "GameplayAbilities", "GameplayTasks", "GameplayTags","EnhancedInput"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
+			"GASCompanion",
+			"UMG", 
+			"GameplayAbilities", 
+			"GameplayTasks", 
+			"GameplayTags",
+			"EnhancedInput",
+			/*AnimGraphRunTime Required to use UKismetAnimationLibraryFunctions */
+			"AnimGraphRuntime"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "GASCompanion"});
 

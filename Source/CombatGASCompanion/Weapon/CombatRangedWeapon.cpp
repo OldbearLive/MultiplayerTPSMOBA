@@ -6,6 +6,7 @@
 #include "CombatGASCompanion/Character/CombatCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ACombatRangedWeapon::ACombatRangedWeapon()
@@ -53,10 +54,11 @@ void ACombatRangedWeapon::BeginPlay()
 	}
 }
 
+
+
 void ACombatRangedWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("SphereOverlaps")));
+	
 
 	ACombatCharacter*CombatCharacter = Cast<ACombatCharacter>(OtherActor);
 	if(CombatCharacter && PickupWidget)
@@ -75,11 +77,20 @@ void ACombatRangedWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComp
 	}
 }
 
+
 // Called every frame
 void ACombatRangedWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+//REPLICATION REGISTRATION
+void ACombatRangedWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACombatRangedWeapon,WeaponStates);
 }
 
 
@@ -90,5 +101,32 @@ void ACombatRangedWeapon::ShowPickupWidget(bool bShowWidget)
 		PickupWidget->SetVisibility(bShowWidget);
 	}
 }
+
+void ACombatRangedWeapon::OnRep_WeaponStates()
+{
+
+	switch (WeaponStates)
+	{
+	case  ERangedWeaponStates::ERWS_Equipped:
+		ShowPickupWidget(false);
+//TestingForAnimLayers
+		
+		break;
+	}
+}
+
+
+void ACombatRangedWeapon::SetWeaponState(ERangedWeaponStates State)
+{
+	WeaponStates=State;
+	switch (WeaponStates)
+	{
+	case  ERangedWeaponStates::ERWS_Equipped:
+		ShowPickupWidget(false);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
 
 

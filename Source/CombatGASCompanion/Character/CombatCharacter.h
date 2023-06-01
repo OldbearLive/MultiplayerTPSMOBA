@@ -8,6 +8,7 @@
 #include "InputAction.h"
 #include "CombatGASCompanion/Weapon/CombatRangedWeapon.h"
 #include "ModularGameplayActors/GSCModularCharacter.h"
+#include "CombatGASCompanion/CombatTypes/TurnInPlace.h"
 #include "CombatCharacter.generated.h"
 
 class UInputAction;
@@ -27,17 +28,27 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&OutLifetimeProps)const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void SetOverlappingWeapon(ACombatRangedWeapon*Weapon);
+	virtual void PostInitializeComponents() override;
+
+	virtual void Jump() override;
+
+	
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	void FMove(const FInputActionValue& Value);
 
 	void FLook(const FInputActionValue& Value);
 
+	void FEquip();
+
+	void FAimPressed();
+	void FAimReleased();
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* PilotInputMappingContext;
@@ -48,21 +59,60 @@ protected:
 	UInputAction* Look;
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* Equip;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* Aim;
 
+	//AimVariables
 
+	void AimOffset(float DeltaTime);
+	void FTurnInPlace(float DeltaTime);
+
+	
 private:
+
+	//AimPrivate Variables
+
+	float AO_Yaw;
+	float InterpAO_Yaw;
+	float AO_Pitch;
+	FRotator StartingAimRotation;
+
+	//TurnInPlace
+
+	ETurningInPlace TurnInPlace;
+
+	
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class UCameraComponent* CameraComponent;
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,meta = (AllowPrivateAccess ="true"))
-	class UWidgetComponent*OverheadWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess ="true"))
+	class UWidgetComponent* OverheadWidget;
 
 	UPROPERTY(ReplicatedUsing=OnRep_OverlappingWeapon)
-	class ACombatRangedWeapon*OverlappingWeapon;
+	class ACombatRangedWeapon* OverlappingWeapon;
 
 	UFUNCTION()
-	void OnRep_OverlappingWeapon(ACombatRangedWeapon*LastWeapon);
+	void OnRep_OverlappingWeapon(ACombatRangedWeapon* LastWeapon);
+
+	UPROPERTY(VisibleAnywhere)
+	class URangedCombatComponent* CombatComponent;
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
+
+public:
+	void SetOverlappingWeapon(ACombatRangedWeapon* Weapon);
+
+	bool IsWeaponEquipped();
+	bool IsAiming();
+
+	FORCEINLINE float GetAO_Yaw(){return AO_Yaw;}
+	FORCEINLINE float GetAO_Pitch(){return AO_Pitch;}
+	FORCEINLINE ETurningInPlace GetTurningInPlace()const {return TurnInPlace;}
+	ACombatRangedWeapon* GetEquippedWeapon();
 };

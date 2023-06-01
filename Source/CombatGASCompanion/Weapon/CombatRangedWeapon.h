@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
 #include "CombatRangedWeapon.generated.h"
 
@@ -27,11 +28,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	void ShowPickupWidget(bool bShowWidget);
+
 
 protected:
 	virtual void BeginPlay() override;
 
+	// OVERLAP FUNCTIONS FOR PICKUP WIDGET
 	UFUNCTION()
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -42,7 +47,6 @@ protected:
 		const FHitResult& SweepResult
 	);
 
-	
 	UFUNCTION()
 	void OnSphereEndOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -50,12 +54,9 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
+	///END OVERLAP FUNCTION SECTION
 
 
-
-
-
-	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;
@@ -63,9 +64,23 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	
+	
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponStates, VisibleAnywhere, Category = "Weapon Properties")
 	ERangedWeaponStates WeaponStates;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* PickupWidget;
+
+	UFUNCTION()
+	void OnRep_WeaponStates();
+
+	
+
+public:
+	void SetWeaponState(ERangedWeaponStates State);
+
+	
+	FORCEINLINE USphereComponent* GetSphereComponent() const { return AreaSphere; }
+	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 };
