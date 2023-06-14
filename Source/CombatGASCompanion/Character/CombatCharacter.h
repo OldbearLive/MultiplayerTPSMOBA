@@ -34,7 +34,7 @@ public:
 
 	virtual void Jump() override;
 
-	
+	virtual void  PlayFireMontage(bool bIsAiming);
 
 
 protected:
@@ -49,6 +49,8 @@ protected:
 
 	void FAimPressed();
 	void FAimReleased();
+	void FFirePressed();
+	void FFireReleased();
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputMappingContext* PilotInputMappingContext;
@@ -63,15 +65,16 @@ protected:
 	UInputAction* Equip;
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* Aim;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* Fire;
 
 	//AimVariables
 
 	void AimOffset(float DeltaTime);
 	void FTurnInPlace(float DeltaTime);
 
-	
-private:
 
+private:
 	//AimPrivate Variables
 
 	float AO_Yaw;
@@ -83,7 +86,7 @@ private:
 
 	ETurningInPlace TurnInPlace;
 
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
 
@@ -105,14 +108,19 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
+	//Animation
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* FireWeaponMontage;
+
+
 public:
 	void SetOverlappingWeapon(ACombatRangedWeapon* Weapon);
 
 	bool IsWeaponEquipped();
 	bool IsAiming();
 
-	FORCEINLINE float GetAO_Yaw(){return AO_Yaw;}
-	FORCEINLINE float GetAO_Pitch(){return AO_Pitch;}
-	FORCEINLINE ETurningInPlace GetTurningInPlace()const {return TurnInPlace;}
+	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
+	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurnInPlace; }
 	ACombatRangedWeapon* GetEquippedWeapon();
 };

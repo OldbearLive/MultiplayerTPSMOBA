@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "RangedCombatComponent.generated.h"
 
+#define TRACE_LENGTH  80000.f
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class COMBATGASCOMPANION_API URangedCombatComponent : public UActorComponent
@@ -41,6 +42,16 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	void FireButtonPressed(bool bPressed);
+
+	UFUNCTION(Server,Reliable)
+	void Server_Fire();
+
+	UFUNCTION(NetMulticast,Reliable)
+	void MultiCast_Fire();
+
+	void TraceUnderCrosshair(FHitResult& TraceHitResult);
 	
 private:
 	class ACombatCharacter* Character;
@@ -55,4 +66,9 @@ private:
 	float BaseWalkSpeed;
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
+
+
+	bool bFireButtonPressed;
+
+	FVector HitTarget;
 };

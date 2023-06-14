@@ -102,6 +102,15 @@ void ACombatRangedWeapon::ShowPickupWidget(bool bShowWidget)
 	}
 }
 
+void ACombatRangedWeapon::Fire(const FVector& HitTarget)
+{
+	if(FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation,false);
+	}
+	
+}
+
 void ACombatRangedWeapon::OnRep_WeaponStates()
 {
 

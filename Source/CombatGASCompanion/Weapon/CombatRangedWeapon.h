@@ -32,6 +32,8 @@ public:
 
 	void ShowPickupWidget(bool bShowWidget);
 
+	virtual void  Fire(const FVector& HitTarget);
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -64,23 +66,25 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
 
-	
-	
+
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponStates, VisibleAnywhere, Category = "Weapon Properties")
 	ERangedWeaponStates WeaponStates;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* PickupWidget;
 
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	UAnimationAsset* FireAnimation;
+
 	UFUNCTION()
 	void OnRep_WeaponStates();
 
-	
 
 public:
 	void SetWeaponState(ERangedWeaponStates State);
 
-	
+
 	FORCEINLINE USphereComponent* GetSphereComponent() const { return AreaSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 };

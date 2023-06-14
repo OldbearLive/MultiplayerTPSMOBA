@@ -29,6 +29,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	Velocity.Z = 0.f;
 	Speed = Velocity.Size();
 
+
 	
 	//Direction = UKismetAnimationLibrary::CalculateDirection(Velocity,CombatCharacter->GetActorRotation());
 
@@ -50,6 +51,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaSeconds, 15.f);
 	YawOffset = DeltaRotation.Yaw;
 
+	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity,AimRotation);
 
 	CharacterRotationLastFrame = CharacterRotation;
 	CharacterRotation = CombatCharacter->GetActorRotation();

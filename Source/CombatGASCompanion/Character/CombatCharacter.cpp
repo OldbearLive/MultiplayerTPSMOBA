@@ -29,8 +29,8 @@ ACombatCharacter::ACombatCharacter()
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
-	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
@@ -63,11 +63,24 @@ void ACombatCharacter::PostInitializeComponents()
 	}
 }
 
-void ACombatCharacter::Jump()
+// Called to bind functionality to input
+void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::Jump();
-	GetCharacterMovement()->bNotifyApex = true;
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(Move, ETriggerEvent::Triggered, this, &ACombatCharacter::FMove);
+		EnhancedInputComponent->BindAction(Look, ETriggerEvent::Triggered, this, &ACombatCharacter::FLook);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACombatCharacter::Jump);
+		EnhancedInputComponent->BindAction(Equip, ETriggerEvent::Triggered, this, &ACombatCharacter::FEquip);
+		EnhancedInputComponent->BindAction(Aim, ETriggerEvent::Started, this, &ACombatCharacter::FAimPressed);
+		EnhancedInputComponent->BindAction(Aim, ETriggerEvent::Completed, this, &ACombatCharacter::FAimReleased);
+		EnhancedInputComponent->BindAction(Fire, ETriggerEvent::Started, this, &ACombatCharacter::FFirePressed);
+		EnhancedInputComponent->BindAction(Fire, ETriggerEvent::Completed, this, &ACombatCharacter::FFireReleased);
+	}
 }
+
 
 
 // Called every frame
@@ -113,6 +126,28 @@ void ACombatCharacter::FLook(const FInputActionValue& Value)
 	AddControllerYawInput(LookAxisVector.X);
 }
 
+
+void ACombatCharacter::Jump()
+{
+	Super::Jump();
+	GetCharacterMovement()->bNotifyApex = true;
+}
+
+void ACombatCharacter::PlayFireMontage(bool bIsAiming)
+{
+	if(CombatComponent == nullptr|| CombatComponent->EquippedWeapon == nullptr) return;
+
+	UAnimInstance*AnimInstance = GetMesh()->GetAnimInstance();
+	if(AnimInstance && FireWeaponMontage)
+	{
+		AnimInstance->Montage_Play(FireWeaponMontage);
+		FName SectionName;
+		SectionName = bIsAiming? FName("RifleHip"):FName("RifleAim");
+	}
+		
+}
+
+
 void ACombatCharacter::FEquip()
 {
 	if (CombatComponent)
@@ -127,6 +162,7 @@ void ACombatCharacter::FEquip()
 		}
 	}
 }
+
 
 void ACombatCharacter::FAimPressed()
 {
@@ -144,6 +180,24 @@ void ACombatCharacter::FAimReleased()
 	}
 }
 
+void ACombatCharacter::FFirePressed()
+{
+
+	if(CombatComponent)
+	{
+		CombatComponent->FireButtonPressed(true);
+	}
+}
+
+void ACombatCharacter::FFireReleased()
+{
+	if(CombatComponent)
+	{
+		CombatComponent->FireButtonPressed(false);
+	}
+	
+}
+
 
 void ACombatCharacter::ServerEquipButtonPressed_Implementation()
 {
@@ -153,21 +207,7 @@ void ACombatCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
-// Called to bind functionality to input
-void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		EnhancedInputComponent->BindAction(Move, ETriggerEvent::Triggered, this, &ACombatCharacter::FMove);
-		EnhancedInputComponent->BindAction(Look, ETriggerEvent::Triggered, this, &ACombatCharacter::FLook);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACombatCharacter::Jump);
-		EnhancedInputComponent->BindAction(Equip, ETriggerEvent::Triggered, this, &ACombatCharacter::FEquip);
-		EnhancedInputComponent->BindAction(Aim, ETriggerEvent::Started, this, &ACombatCharacter::FAimPressed);
-		EnhancedInputComponent->BindAction(Aim, ETriggerEvent::Completed, this, &ACombatCharacter::FAimReleased);
-	}
-}
 
 
 void ACombatCharacter::SetOverlappingWeapon(ACombatRangedWeapon* Weapon)
@@ -207,7 +247,7 @@ ACombatRangedWeapon* ACombatCharacter::GetEquippedWeapon()
 void ACombatCharacter::AimOffset(float DeltaTime)
 {
 
-	if(CombatComponent && CombatComponent->EquippedWeapon == nullptr)return;
+	if(CombatComponent== nullptr)return;
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	float Speed = Velocity.Size();
@@ -262,9 +302,9 @@ void ACombatCharacter::FTurnInPlace(float DeltaTime)
 	}
 	if(TurnInPlace != ETurningInPlace::ETIP_NotTurning)
 	{
-		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw,0.0f,DeltaTime,15.0f);
+		InterpAO_Yaw = FMath::FInterpTo(InterpAO_Yaw,0.0f,DeltaTime,3.0f);
 		AO_Yaw = InterpAO_Yaw;
-		if(FMath::Abs(AO_Yaw)<20.0f)
+		if(FMath::Abs(AO_Yaw)<15.0f)
 		{
 			TurnInPlace = ETurningInPlace::ETIP_NotTurning;
 			StartingAimRotation = FRotator(0.f,GetBaseAimRotation().Yaw,0.f);
