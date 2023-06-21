@@ -143,6 +143,7 @@ void ACombatCharacter::PlayFireMontage(bool bIsAiming)
 		AnimInstance->Montage_Play(FireWeaponMontage);
 		FName SectionName;
 		SectionName = bIsAiming? FName("RifleHip"):FName("RifleAim");
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 		
 }
@@ -327,35 +328,4 @@ void ACombatCharacter::OnRep_OverlappingWeapon(ACombatRangedWeapon* LastWeapon)
 
 
 
-void ACombatCharacter::SetOverlappingWeapon(ACombatRangedWeapon* Weapon)
-{
 
-	if(OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(false);
-	}
-	OverlappingWeapon=Weapon;
-
-	if(IsLocallyControlled())
-	{
-		if(OverlappingWeapon)
-		{
-			OverlappingWeapon->ShowPickupWidget(true);
-		}
-		
-	}
-}
-
-void ACombatCharacter::OnRep_OverlappingWeapon(ACombatRangedWeapon*LastWeapon)
-{
-	
-	if(OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
-
-	if(LastWeapon)
-	{
-		LastWeapon->ShowPickupWidget(false);
-	}
-}
