@@ -46,12 +46,12 @@ protected:
 	void FireButtonPressed(bool bPressed);
 
 	UFUNCTION(Server,Reliable)
-	void Server_Fire();
+	void Server_Fire( const FVector_NetQuantize& HitResult);
 
 	UFUNCTION(NetMulticast,Reliable)
-	void MultiCast_Fire();
+	void MultiCast_Fire(const FVector_NetQuantize& HitResult);
 
-	void TraceUnderCrosshair(FHitResult& TraceHitResult);
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	
 private:
 	class ACombatCharacter* Character;

@@ -7,6 +7,8 @@
 #include "../../../../../UE_5.1/Engine/Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ACombatProjectile::ACombatProjectile()
@@ -37,6 +39,30 @@ void ACombatProjectile::BeginPlay()
 	if(TracerSystem)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAttached(TracerSystem,CollisionBox,FName(),GetActorLocation(),GetActorRotation(),EAttachLocation::KeepWorldPosition,false);
+	}
+	if(HasAuthority())
+	{
+		CollisionBox->OnComponentHit.AddDynamic(this,&ACombatProjectile::OnHit);
+	}
+}
+
+void ACombatProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
+{
+	SpawnRotator = Hit.Normal.Rotation();
+	Destroy();
+}
+
+void ACombatProjectile::Destroyed()
+{
+	Super::Destroyed();
+	if(HitFX)
+	{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitFX,GetActorLocation(),SpawnRotator);
+	}
+	if(HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this,HitSound,GetActorLocation());
 	}
 }
 

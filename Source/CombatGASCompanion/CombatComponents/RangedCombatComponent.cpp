@@ -31,7 +31,7 @@ void URangedCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FHitResult HitResult;
-	TraceUnderCrosshair(HitResult);
+	TraceUnderCrosshairs(HitResult);
 
 	// ...
 }
@@ -89,61 +89,58 @@ void URangedCombatComponent::FireButtonPressed(bool bPressed)
 	bFireButtonPressed = bPressed;
 	if (bFireButtonPressed)
 	{
-		Server_Fire();
+		FHitResult HitResult;
+		TraceUnderCrosshairs(HitResult);
+		Server_Fire(HitResult.ImpactPoint);
 	}
 }
 
 
-void URangedCombatComponent::TraceUnderCrosshair(FHitResult& TraceHitResult)
+void URangedCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 {
 	FVector2d ViewportSize;
 	if (GEngine && GEngine->GameViewport)
 	{
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 	}
-
 	FVector2d CrosshairLocation(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
-
-	FVector CrosshairWorldPostion;
+	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
-	                                                               CrosshairLocation,
-	                                                               CrosshairWorldPostion,
-	                                                               CrosshairWorldDirection
-	);
-	if (bScreenToWorld)
+
+	bool bScreentoWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation,
+	                                         CrosshairWorldPosition, CrosshairWorldDirection);
+
+	if(bScreentoWorld)
 	{
-		FVector Start = CrosshairWorldPostion;
-		FVector End = Start + CrosshairWorldDirection * TRACE_LENGTH;
+		FVector Start = CrosshairWorldPosition;
+		FVector End = Start + (CrosshairWorldDirection * TRACE_LENGTH);
 
-		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
-
-		if (!TraceHitResult.bBlockingHit)
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult,Start,End,ECollisionChannel::ECC_Visibility);
+	
+		if(!TraceHitResult.bBlockingHit)
 		{
 			TraceHitResult.ImpactPoint = End;
-			HitTarget = End;
 		}
-
 		else
 		{
-			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
+			DrawDebugSphere(GetWorld(),TraceHitResult.ImpactPoint,12.f,12,FColor::Red);
 		}
 	}
 }
 
-void URangedCombatComponent::Server_Fire_Implementation()
+void URangedCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& HitResult)
 {
-	MultiCast_Fire();
+	MultiCast_Fire(HitResult);
 }
 
-void URangedCombatComponent::MultiCast_Fire_Implementation()
+void URangedCombatComponent::MultiCast_Fire_Implementation(const FVector_NetQuantize& HitResult)
 {
 	if (EquippedWeapon == nullptr)return;
 	if (Character)
 	{
 		Character->PlayFireMontage(bAiming);
-		
-		EquippedWeapon->Fire(HitTarget);
+
+		EquippedWeapon->Fire(HitResult);
 	}
 }
 

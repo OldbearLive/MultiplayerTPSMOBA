@@ -10,8 +10,8 @@ UCLASS()
 class COMBATGASCOMPANION_API ACombatProjectile : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ACombatProjectile();
 
@@ -19,10 +19,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* HitComp,AActor* OtherActor,UPrimitiveComponent* OtherComp,FVector NormalImpulse,const FHitResult& Hit);
 
+	virtual void Destroyed() override;
+private:
 	UPROPERTY(EditAnywhere)
-	class UBoxComponent*CollisionBox;
+	class UBoxComponent* CollisionBox;
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
@@ -30,8 +33,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* TracerSystem;
 
-public:	
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* HitFX;
+	
+	UPROPERTY(EditAnywhere)
+	class USoundBase* HitSound;
+
+	FRotator SpawnRotator;
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };
