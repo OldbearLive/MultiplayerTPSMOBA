@@ -118,8 +118,7 @@ void ACombatRangedWeapon::OnRep_WeaponStates()
 	{
 	case  ERangedWeaponStates::ERWS_Equipped:
 		ShowPickupWidget(false);
-//TestingForAnimLayers
-		
+        //TestingForAnimLayers
 		break;
 	}
 }

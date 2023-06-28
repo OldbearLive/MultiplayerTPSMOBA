@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CombatGASCompanion/HUD/CombatHUD.h"
 #include "Components/ActorComponent.h"
 #include "RangedCombatComponent.generated.h"
 
@@ -52,9 +53,15 @@ protected:
 	void MultiCast_Fire(const FVector_NetQuantize& HitResult);
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
+	void SetHUDCrosshairs(float DeltaTime);
 	
 private:
 	class ACombatCharacter* Character;
+
+	class ACombatPlayerController *PlayerController;
+
+	class ACombatHUD * HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	ACombatRangedWeapon* EquippedWeapon;

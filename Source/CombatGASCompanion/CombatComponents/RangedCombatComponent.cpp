@@ -4,6 +4,7 @@
 #include "RangedCombatComponent.h"
 
 #include "CombatGASCompanion/Character/CombatCharacter.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "CombatGASCompanion/Weapon/CombatRangedWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -33,6 +34,7 @@ void URangedCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FHitResult HitResult;
 	TraceUnderCrosshairs(HitResult);
 
+	SetHUDCrosshairs(DeltaTime);
 	// ...
 }
 
@@ -54,6 +56,41 @@ void URangedCombatComponent::BeginPlay()
 		Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	}
 	// ...
+}
+
+void URangedCombatComponent::SetHUDCrosshairs(float DeltaTime)
+{
+	if (Character == nullptr || Character->Controller == nullptr)return;
+	PlayerController = PlayerController == nullptr
+		                   ? Cast<ACombatPlayerController>(Character->Controller)
+		                   : PlayerController;
+
+	if (PlayerController)
+	{
+		HUD = HUD == nullptr ? Cast<ACombatHUD>(PlayerController->GetHUD()) : HUD;
+		if (HUD)
+		{
+			FHUDPackage HUDPackage;
+			if (EquippedWeapon)
+			{
+				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
+				HUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
+				HUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
+				HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
+				HUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
+			}
+			else
+			{
+				HUDPackage.CrosshairsCenter = nullptr;
+				HUDPackage.CrosshairsTop = nullptr;
+				HUDPackage.CrosshairsBottom = nullptr;
+				HUDPackage.CrosshairsLeft = nullptr;
+				HUDPackage.CrosshairsRight = nullptr;
+			}
+
+			HUD->SetHUDPackage(HUDPackage);
+		}
+	}
 }
 
 void URangedCombatComponent::SetAiming(bool bIsAiming)
@@ -107,26 +144,28 @@ void URangedCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 	FVector CrosshairWorldPosition;
 	FVector CrosshairWorldDirection;
 
-	bool bScreentoWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation,
-	                                         CrosshairWorldPosition, CrosshairWorldDirection);
+	bool bScreentoWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
+	                                                               CrosshairLocation,
+	                                                               CrosshairWorldPosition, CrosshairWorldDirection);
 
-	if(bScreentoWorld)
+	if (bScreentoWorld)
 	{
 		FVector Start = CrosshairWorldPosition;
 		FVector End = Start + (CrosshairWorldDirection * TRACE_LENGTH);
 
-		GetWorld()->LineTraceSingleByChannel(TraceHitResult,Start,End,ECollisionChannel::ECC_Visibility);
-	
-		if(!TraceHitResult.bBlockingHit)
+		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+
+		if (!TraceHitResult.bBlockingHit)
 		{
 			TraceHitResult.ImpactPoint = End;
 		}
 		else
 		{
-			DrawDebugSphere(GetWorld(),TraceHitResult.ImpactPoint,12.f,12,FColor::Red);
+			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
 		}
 	}
 }
+
 
 void URangedCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& HitResult)
 {

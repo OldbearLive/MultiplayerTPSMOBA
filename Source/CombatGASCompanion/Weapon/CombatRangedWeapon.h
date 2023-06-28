@@ -7,6 +7,11 @@
 #include "GameFramework/Actor.h"
 #include "CombatRangedWeapon.generated.h"
 
+
+/*
+ *WEAPON STATES ENUM
+ *
+ */
 UENUM(BlueprintType)
 enum class ERangedWeaponStates:uint8
 {
@@ -17,6 +22,10 @@ enum class ERangedWeaponStates:uint8
 	ERWS_MAX UMETA(DisplayName = "Default_MAX")
 };
 
+/*
+ *WEAPON STATES ENUM
+ *
+ */
 UCLASS()
 class COMBATGASCOMPANION_API ACombatRangedWeapon : public AActor
 {
@@ -28,14 +37,44 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/*
+	 *   PICKUPWIDGET
+	*/
 	void ShowPickupWidget(bool bShowWidget);
 
-	virtual void  Fire(const FVector& HitTarget);
+
+	/*
+    *WEAPON FIRE
+    */
+	virtual void Fire(const FVector& HitTarget);
+
+
+	
+	/*
+	 *   WEAPON CROSSHAIR
+	*/
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	class UTexture2D* CrosshairsCenter;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	UTexture2D* CrosshairsTop;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	UTexture2D* CrosshairsBottom;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	UTexture2D* CrosshairsLeft;
+	
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	UTexture2D* CrosshairsRight;
 
 
 protected:
+
+	
 	virtual void BeginPlay() override;
 
 	// OVERLAP FUNCTIONS FOR PICKUP WIDGET
@@ -79,7 +118,6 @@ private:
 
 	UFUNCTION()
 	void OnRep_WeaponStates();
-
 
 public:
 	void SetWeaponState(ERangedWeaponStates State);
