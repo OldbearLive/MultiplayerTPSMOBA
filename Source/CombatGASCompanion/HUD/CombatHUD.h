@@ -17,6 +17,8 @@ public:
 	UTexture2D * CrosshairsBottom;
 	UTexture2D * CrosshairsLeft;
 	UTexture2D * CrosshairsRight;
+	float CrosshairSpreadX;
+	float CrosshairSpreadY;
 };
 /**
  * 
@@ -30,10 +32,15 @@ class COMBATGASCOMPANION_API ACombatHUD : public AHUD
 public:
 	virtual  void DrawHUD() override;
 
-	void DrawCrosshair(UTexture2D* Texture,FVector2d ViewportCenter);
+	void DrawCrosshair(UTexture2D* Texture,FVector2d ViewportCenter,FVector2d Spread);
 
 private:
 	FHUDPackage HUDPackage;
+
+	UPROPERTY(EditAnywhere)
+	float CrosshairSpreadMaxX = 16.f;
+	UPROPERTY(EditAnywhere)
+	float CrosshairSpreadMaxY = 16.f;
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package){ HUDPackage = Package;}
 };

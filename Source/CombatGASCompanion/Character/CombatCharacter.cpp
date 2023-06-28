@@ -245,6 +245,12 @@ ACombatRangedWeapon* ACombatCharacter::GetEquippedWeapon()
 	return CombatComponent->EquippedWeapon;
 }
 
+FVector ACombatCharacter::GetHitTarget() const
+{
+	if(CombatComponent== nullptr)return FVector();
+	return CombatComponent->HitTarget;
+}
+
 void ACombatCharacter::AimOffset(float DeltaTime)
 {
 

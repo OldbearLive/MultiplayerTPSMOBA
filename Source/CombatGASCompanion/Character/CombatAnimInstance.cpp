@@ -30,7 +30,6 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	Speed = Velocity.Size();
 
 
-	
 	//Direction = UKismetAnimationLibrary::CalculateDirection(Velocity,CombatCharacter->GetActorRotation());
 
 	bIsInAir = CombatCharacter->GetCharacterMovement()->IsFalling();
@@ -51,7 +50,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaSeconds, 15.f);
 	YawOffset = DeltaRotation.Yaw;
 
-	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity,AimRotation);
+	Direction = UKismetAnimationLibrary::CalculateDirection(Velocity, AimRotation);
 
 	CharacterRotationLastFrame = CharacterRotation;
 	CharacterRotation = CombatCharacter->GetActorRotation();
@@ -64,24 +63,47 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	ApexReached = CombatCharacter->GetCharacterMovement()->bNotifyApex;
 	AO_Yaw = CombatCharacter->GetAO_Yaw();
 	AO_Pitch = CombatCharacter->GetAO_Pitch();
-	TurnInPlace=CombatCharacter->GetTurningInPlace();
+	TurnInPlace = CombatCharacter->GetTurningInPlace();
 
-	if (bWeaponEquipped)
+
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CombatCharacter->GetMesh())
 	{
-		if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CombatCharacter->GetMesh())
-		{
-			LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
-				FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
+			FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
 
-			FVector OutPosition;
-			FRotator OutRotation;
-			CombatCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(),
-			                                                 FRotator::ZeroRotator, OutPosition, OutRotation);
-			LeftHandTransform.SetLocation(OutPosition);
-			LeftHandTransform.SetRotation(FQuat(OutRotation));
+		FVector OutPosition;
+		FRotator OutRotation;
+		CombatCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(),
+		                                                 FRotator::ZeroRotator, OutPosition, OutRotation);
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotation));
+
+		if (CombatCharacter->IsLocallyControlled())
+		{
+			bIsLocallyControlled = true;
+			FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
+				FName("hand_r"), ERelativeTransformSpace::RTS_World);
+
+			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(),
+			                                                           RightHandTransform.GetLocation() + (
+				                                                           RightHandTransform.GetLocation() -
+				                                                           CombatCharacter->GetHitTarget()));
+
+			//DEBUG LINES TO SEE WEaponROtation
+
+			/*FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
+				FName("MuzzleFlash"), ERelativeTransformSpace::RTS_World);
+		
+			FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 10000,
+						  FColor::Red);
+		
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), CombatCharacter->GetHitTarget(), FColor::Blue);*/
 		}
 	}
 }
+
+;
 
 /*
 {

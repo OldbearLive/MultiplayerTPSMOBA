@@ -68,6 +68,12 @@ private:
 	ETurningInPlace TurnInPlace;
 
 
+	UPROPERTY(BlueprintReadOnly,Category="Weapon",meta = (AllowPrivateAccess="true"))
+	FRotator RightHandRotation;
+
+	UPROPERTY(BlueprintReadOnly,Category="Weapon",meta = (AllowPrivateAccess="true"))
+	bool bIsLocallyControlled;
+	
 	FRotator CharacterRotationLastFrame;
 	FRotator CharacterRotation;
 

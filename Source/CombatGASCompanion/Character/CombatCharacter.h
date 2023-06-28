@@ -119,8 +119,13 @@ public:
 	bool IsWeaponEquipped();
 	bool IsAiming();
 
+
+	//GETTERS
+
+	
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurnInPlace; }
 	ACombatRangedWeapon* GetEquippedWeapon();
+	FVector GetHitTarget()const;
 };
