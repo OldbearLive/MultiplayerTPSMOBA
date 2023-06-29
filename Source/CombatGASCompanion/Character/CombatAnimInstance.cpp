@@ -23,7 +23,10 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	{
 		CombatCharacter = Cast<ACombatCharacter>(TryGetPawnOwner());
 	}
-	if (CombatCharacter == nullptr)return;
+	if (CombatCharacter == nullptr)
+	{
+		return;
+	}
 
 	FVector Velocity = CombatCharacter->GetVelocity();
 	Velocity.Z = 0.f;
@@ -64,12 +67,13 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	AO_Yaw = CombatCharacter->GetAO_Yaw();
 	AO_Pitch = CombatCharacter->GetAO_Pitch();
 	TurnInPlace = CombatCharacter->GetTurningInPlace();
+	bRotateRootBone= CombatCharacter->ShouldRotateRootBone();
 
 
 	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CombatCharacter->GetMesh())
 	{
 		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
-			FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+			FName("LeftHandSocket"), RTS_World);
 
 		FVector OutPosition;
 		FRotator OutRotation;
@@ -82,13 +86,14 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 		{
 			bIsLocallyControlled = true;
 			FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
-				FName("hand_r"), ERelativeTransformSpace::RTS_World);
+				FName("hand_r"), RTS_World);
 
-			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(),
-			                                                           RightHandTransform.GetLocation() + (
-				                                                           RightHandTransform.GetLocation() -
-				                                                           CombatCharacter->GetHitTarget()));
+			FRotator LookatRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(),
+			                                                                 RightHandTransform.GetLocation() + (
+				                                                                 RightHandTransform.GetLocation() -
+				                                                                 CombatCharacter->GetHitTarget()));
 
+			RightHandRotation = UKismetMathLibrary::RInterpTo(RightHandRotation, LookatRotation, DeltaSeconds, 20.f);
 			//DEBUG LINES TO SEE WEaponROtation
 
 			/*FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(

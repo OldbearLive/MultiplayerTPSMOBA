@@ -11,10 +11,13 @@ void AProjectileCombatRangedWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
 
-	if(!HasAuthority())return;
+	if (!HasAuthority())
+	{
+		return;
+	}
 
 	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
-	USkeletalMeshSocket const* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetWeaponMesh()->GetSocketByName(FName("MuzzleFlash"));
 	if (MuzzleFlashSocket)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());

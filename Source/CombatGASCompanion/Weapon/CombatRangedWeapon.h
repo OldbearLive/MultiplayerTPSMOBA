@@ -52,7 +52,6 @@ public:
 	virtual void Fire(const FVector& HitTarget);
 
 
-	
 	/*
 	 *   WEAPON CROSSHAIR
 	*/
@@ -67,14 +66,32 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
 	UTexture2D* CrosshairsLeft;
-	
+
 	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
 	UTexture2D* CrosshairsRight;
 
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	float CrosshairSpreadX = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	float CrosshairSpreadY = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	float CrosshairShoot = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	float CrosshairAim = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	FVector CameraAimSocketOffset;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	FLinearColor CrosshairDefaultColor;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	FLinearColor CrosshairEnemyColor;
 
 protected:
-
-	
 	virtual void BeginPlay() override;
 
 	// OVERLAP FUNCTIONS FOR PICKUP WIDGET
@@ -119,10 +136,23 @@ private:
 	UFUNCTION()
 	void OnRep_WeaponStates();
 
+	/*
+	 *
+	 *ZOOM Params
+	 */
+	UPROPERTY(EditAnywhere)
+	float ZoomedFOV;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomInterpSpeed;
+
+
 public:
 	void SetWeaponState(ERangedWeaponStates State);
 
 
 	FORCEINLINE USphereComponent* GetSphereComponent() const { return AreaSphere; }
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+	FORCEINLINE float GetZoomFOV() const { return ZoomedFOV; }
+	FORCEINLINE float GetZoomInterp() const { return ZoomInterpSpeed; }
 };

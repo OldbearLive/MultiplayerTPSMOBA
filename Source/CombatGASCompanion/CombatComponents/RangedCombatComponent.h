@@ -28,17 +28,17 @@ public:
 
 
 public:
-	void EquipWeapon(class ACombatRangedWeapon*WeaponToEquip);
+	void EquipWeapon(class ACombatRangedWeapon* WeaponToEquip);
 
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	
+
 	void SetAiming(bool bIsAiming);
 
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bIsAiming);
 
 	UFUNCTION()
@@ -46,22 +46,22 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 
-	UFUNCTION(Server,Reliable)
-	void Server_Fire( const FVector_NetQuantize& HitResult);
+	UFUNCTION(Server, Reliable)
+	void Server_Fire(const FVector_NetQuantize& HitResult);
 
-	UFUNCTION(NetMulticast,Reliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void MultiCast_Fire(const FVector_NetQuantize& HitResult);
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 	void SetHUDCrosshairs(float DeltaTime);
-	
+
 private:
 	class ACombatCharacter* Character;
 
-	class ACombatPlayerController *PlayerController;
+	class ACombatPlayerController* PlayerController;
 
-	class ACombatHUD * HUD;
+	class ACombatHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	ACombatRangedWeapon* EquippedWeapon;
@@ -79,8 +79,30 @@ private:
 
 	//CROSSHAIR STUFF
 
+	FHUDPackage HUDPackage;
+
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
+	float CrosshairAimFactor;
+	float CrosshairShootingFactor;
+	FVector CameraSocketOffset;
 
 	FVector HitTarget;
+
+	/*
+	 *Zooming and Aiming
+	 */
+
+	//DefaultZoom Set in BeginPlay
+	float DefaultFOV;
+
+	FVector DefaultCameraSocketOffset;
+	//CurrentFOV Set in BeginPlay
+	float CurrentFOV;
+
+	FVector CurrentCameraSocketOffset;
+	//ZoomFOV
+	
+
+	void InterpFOV(float DeltaTime);
 };

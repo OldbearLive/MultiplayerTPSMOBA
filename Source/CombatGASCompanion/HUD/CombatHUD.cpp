@@ -15,44 +15,44 @@ void ACombatHUD::DrawHUD()
 
 		float SpreadScaledX = CrosshairSpreadMaxX * HUDPackage.CrosshairSpreadX;
 		float SpreadScaledY = CrosshairSpreadMaxY * HUDPackage.CrosshairSpreadY;
-		
+
 		if (HUDPackage.CrosshairsCenter)
 		{
-			FVector2d Spread(0.f,0.f);
-			DrawCrosshair(HUDPackage.CrosshairsCenter, ViewportCenter,Spread);
+			FVector2d Spread(0.f, 0.f);
+			DrawCrosshair(HUDPackage.CrosshairsCenter, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.CrosshairsTop)
 		{
-			FVector2d Spread(0.f,-SpreadScaledY);
-			DrawCrosshair(HUDPackage.CrosshairsTop, ViewportCenter,Spread);
+			FVector2d Spread(0.f, -SpreadScaledY);
+			DrawCrosshair(HUDPackage.CrosshairsTop, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.CrosshairsBottom)
 		{
-			FVector2d Spread(0.f,SpreadScaledY);
-			DrawCrosshair(HUDPackage.CrosshairsBottom, ViewportCenter,Spread);
+			FVector2d Spread(0.f, SpreadScaledY);
+			DrawCrosshair(HUDPackage.CrosshairsBottom, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.CrosshairsLeft)
 		{
-			FVector2d Spread(-SpreadScaledX,0.f);
-			DrawCrosshair(HUDPackage.CrosshairsLeft, ViewportCenter,Spread);
+			FVector2d Spread(-SpreadScaledX, 0.f);
+			DrawCrosshair(HUDPackage.CrosshairsLeft, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 		if (HUDPackage.CrosshairsRight)
 		{
-			FVector2d Spread(SpreadScaledX,0.f);
-			DrawCrosshair(HUDPackage.CrosshairsRight, ViewportCenter,Spread);
+			FVector2d Spread(SpreadScaledX, 0.f);
+			DrawCrosshair(HUDPackage.CrosshairsRight, ViewportCenter, Spread, HUDPackage.CrosshairColor);
 		}
 	}
 }
 
-void ACombatHUD::DrawCrosshair(UTexture2D* Texture, FVector2d ViewportCenter,FVector2d Spread)
+void ACombatHUD::DrawCrosshair(UTexture2D* Texture, FVector2d ViewportCenter, FVector2d Spread,
+                               FLinearColor CrosshairColor)
 {
 	const float TextureWidth = Texture->GetSizeX();
 	const float TextureHeight = Texture->GetSizeY();
 
-	const FVector2d TextureDrawPoint(ViewportCenter.X - (TextureWidth / 2.f) + Spread.X, ViewportCenter.Y - (TextureHeight / 2.f)+Spread.Y);
+	const FVector2d TextureDrawPoint(ViewportCenter.X - (TextureWidth / 2.f) + Spread.X,
+	                                 ViewportCenter.Y - (TextureHeight / 2.f) + Spread.Y);
 
 	DrawTexture(Texture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f,
-	            FLinearColor::White);
-
-	
+	            CrosshairColor);
 }

@@ -7,23 +7,26 @@ public class CombatGASCompanion : ModuleRules
 	public CombatGASCompanion(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
+
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core", "CoreUObject", "Engine", "InputCore",
 			"GASCompanion",
-			"UMG", 
-			"GameplayAbilities", 
-			"GameplayTasks", 
+			"UMG",
+			"GameplayAbilities",
+			"GameplayTasks",
 			"GameplayTags",
 			"EnhancedInput",
 			"Niagara",
 			/*AnimGraphRunTime Required to use UKismetAnimationLibraryFunctions */
-			"AnimGraphRuntime"});
+			"AnimGraphRuntime"
+		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "GASCompanion"});
+		PrivateDependencyModuleNames.AddRange(new[] { "GASCompanion" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

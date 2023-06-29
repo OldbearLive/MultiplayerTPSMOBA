@@ -13,5 +13,4 @@ UCLASS()
 class COMBATGASCOMPANION_API ACombatGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
 };

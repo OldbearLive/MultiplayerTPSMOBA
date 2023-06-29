@@ -16,6 +16,4 @@ class COMBATGASCOMPANION_API ACombatMainMenuGameMode : public AGameMode
 
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-	
-	
 };

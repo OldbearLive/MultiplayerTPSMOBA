@@ -9,12 +9,13 @@
 #include "CombatGASCompanion/Weapon/CombatRangedWeapon.h"
 #include "ModularGameplayActors/GSCModularCharacter.h"
 #include "CombatGASCompanion/CombatTypes/TurnInPlace.h"
+#include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
 #include "CombatCharacter.generated.h"
 
 class UInputAction;
 
 UCLASS()
-class COMBATGASCOMPANION_API ACombatCharacter : public ACharacter
+class COMBATGASCOMPANION_API ACombatCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
@@ -34,7 +35,10 @@ public:
 
 	virtual void Jump() override;
 
-	virtual void  PlayFireMontage(bool bIsAiming);
+	virtual void PlayFireMontage(bool bIsAiming);
+	virtual void PlayHitReactMontage();
+
+	virtual void OnRep_ReplicatedMovement() override;
 
 
 protected:
@@ -72,6 +76,8 @@ protected:
 
 	void AimOffset(float DeltaTime);
 	void FTurnInPlace(float DeltaTime);
+	void SimProxiesTurn();
+	void CalculateAO_Pitch();
 
 
 private:
@@ -112,20 +118,49 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* HitReactMontage;
 
+
+	//CameraHideFunction
+	void HideCamIfCharacterClose();
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float HideCamThreshhold;
+	//Simproxy Turns
+	bool bRotateRootBone;
+	float TurnThreshhold = 0.5f;
+	FRotator ProxyRotationLastFrame;
+	FRotator ProxyRotation;
+	float ProxyYaw;
+	float TimeSinceLastMovementReplication;
+
+	float CalculateSpeed();
+
+
+
+
+	
 public:
 	void SetOverlappingWeapon(ACombatRangedWeapon* Weapon);
 
 	bool IsWeaponEquipped();
 	bool IsAiming();
 
+	//MC RPCS
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastHit();
+
 
 	//GETTERS
 
-	
+
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurnInPlace; }
+	FORCEINLINE UCameraComponent* GetCameraComponent() const { return CameraComponent; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 	ACombatRangedWeapon* GetEquippedWeapon();
-	FVector GetHitTarget()const;
+	FVector GetHitTarget() const;
 };

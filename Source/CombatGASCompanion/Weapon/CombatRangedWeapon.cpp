@@ -11,24 +11,23 @@
 // Sets default values
 ACombatRangedWeapon::ACombatRangedWeapon()
 {
- 	
 	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
 
 
 	//Create the Weapon Mesh in constructor and validate the pointer in the header
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT ("Weapon Mesh"));
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
 	SetRootComponent(WeaponMesh);
 
-	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn,ECollisionResponse::ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	AreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Area Sphere"));
 	AreaSphere->SetupAttachment(RootComponent);
-	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
@@ -40,38 +39,37 @@ void ACombatRangedWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(HasAuthority())
+	if (HasAuthority())
 	{
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn,ECollisionResponse::ECR_Overlap);
-		AreaSphere->OnComponentBeginOverlap.AddDynamic(this,&ACombatRangedWeapon::OnSphereOverlap);
-		AreaSphere->OnComponentEndOverlap.AddDynamic(this,&ACombatRangedWeapon::OnSphereEndOverlap);
+		AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ACombatRangedWeapon::OnSphereOverlap);
+		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &ACombatRangedWeapon::OnSphereEndOverlap);
 	}
-	
-	if(PickupWidget)
+
+	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(false);
 	}
 }
 
 
-
-void ACombatRangedWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACombatRangedWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                          const FHitResult& SweepResult)
 {
-	
-
-	ACombatCharacter*CombatCharacter = Cast<ACombatCharacter>(OtherActor);
-	if(CombatCharacter && PickupWidget)
+	ACombatCharacter* CombatCharacter = Cast<ACombatCharacter>(OtherActor);
+	if (CombatCharacter && PickupWidget)
 	{
 		CombatCharacter->SetOverlappingWeapon(this);
 	}
 }
 
 void ACombatRangedWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+                                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ACombatCharacter*CombatCharacter = Cast<ACombatCharacter>(OtherActor);
-	if(CombatCharacter)
+	ACombatCharacter* CombatCharacter = Cast<ACombatCharacter>(OtherActor);
+	if (CombatCharacter)
 	{
 		CombatCharacter->SetOverlappingWeapon(nullptr);
 	}
@@ -82,7 +80,6 @@ void ACombatRangedWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComp
 void ACombatRangedWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 //REPLICATION REGISTRATION
@@ -90,13 +87,13 @@ void ACombatRangedWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ACombatRangedWeapon,WeaponStates);
+	DOREPLIFETIME(ACombatRangedWeapon, WeaponStates);
 }
 
 
 void ACombatRangedWeapon::ShowPickupWidget(bool bShowWidget)
 {
-	if(PickupWidget)
+	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(bShowWidget);
 	}
@@ -104,21 +101,19 @@ void ACombatRangedWeapon::ShowPickupWidget(bool bShowWidget)
 
 void ACombatRangedWeapon::Fire(const FVector& HitTarget)
 {
-	if(FireAnimation)
+	if (FireAnimation)
 	{
-		WeaponMesh->PlayAnimation(FireAnimation,false);
+		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
-	
 }
 
 void ACombatRangedWeapon::OnRep_WeaponStates()
 {
-
 	switch (WeaponStates)
 	{
-	case  ERangedWeaponStates::ERWS_Equipped:
+	case ERangedWeaponStates::ERWS_Equipped:
 		ShowPickupWidget(false);
-        //TestingForAnimLayers
+	//TestingForAnimLayers
 		break;
 	}
 }
@@ -126,15 +121,12 @@ void ACombatRangedWeapon::OnRep_WeaponStates()
 
 void ACombatRangedWeapon::SetWeaponState(ERangedWeaponStates State)
 {
-	WeaponStates=State;
+	WeaponStates = State;
 	switch (WeaponStates)
 	{
-	case  ERangedWeaponStates::ERWS_Equipped:
+	case ERangedWeaponStates::ERWS_Equipped:
 		ShowPickupWidget(false);
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	}
 }
-
-
-

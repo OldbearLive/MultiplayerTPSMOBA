@@ -13,5 +13,4 @@ UCLASS()
 class COMBATGASCOMPANION_API ACombatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
 };

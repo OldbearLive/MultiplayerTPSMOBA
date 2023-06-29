@@ -5,6 +5,8 @@
 
 #include "NiagaraFunctionLibrary.h"
 #include "../../../../../UE_5.1/Engine/Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h"
+#include "CombatGASCompanion/CombatGASCompanion.h"
+#include "CombatGASCompanion/Character/CombatCharacter.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,22 +15,23 @@
 // Sets default values
 ACombatProjectile::ACombatProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
-	CollisionBox=CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
-	CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	CollisionBox->SetCollisionObjectType(ECC_WorldDynamic);
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,ECollisionResponse::ECR_Block);
-	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic,ECollisionResponse::ECR_Block);
+	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 
-	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile MovementComponent"));
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(
+		TEXT("Projectile MovementComponent"));
 
-	ProjectileMovementComponent->bRotationFollowsVelocity= true;
-	
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 }
 
 // Called when the game starts or when spawned
@@ -36,19 +39,25 @@ void ACombatProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(TracerSystem)
+	if (TracerSystem)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAttached(TracerSystem,CollisionBox,FName(),GetActorLocation(),GetActorRotation(),EAttachLocation::KeepWorldPosition,false);
+		UNiagaraFunctionLibrary::SpawnSystemAttached(TracerSystem, CollisionBox, FName(), GetActorLocation(),
+		                                             GetActorRotation(), EAttachLocation::KeepWorldPosition, false);
 	}
-	if(HasAuthority())
+	if (HasAuthority())
 	{
-		CollisionBox->OnComponentHit.AddDynamic(this,&ACombatProjectile::OnHit);
+		CollisionBox->OnComponentHit.AddDynamic(this, &ACombatProjectile::OnHit);
 	}
 }
 
 void ACombatProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+                              FVector NormalImpulse, const FHitResult& Hit)
 {
+	ACombatCharacter*CombatCharacter = Cast<ACombatCharacter>(OtherActor);
+	if(CombatCharacter)
+	{
+		CombatCharacter->MulticastHit();
+	}
 	SpawnRotator = Hit.Normal.Rotation();
 	Destroy();
 }
@@ -56,13 +65,13 @@ void ACombatProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 void ACombatProjectile::Destroyed()
 {
 	Super::Destroyed();
-	if(HitFX)
+	if (HitFX)
 	{
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),HitFX,GetActorLocation(),SpawnRotator);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitFX, GetActorLocation(), SpawnRotator);
 	}
-	if(HitSound)
+	if (HitSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this,HitSound,GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
 	}
 }
 
@@ -70,6 +79,4 @@ void ACombatProjectile::Destroyed()
 void ACombatProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-

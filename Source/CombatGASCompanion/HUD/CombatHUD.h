@@ -12,14 +12,16 @@ struct FHUDPackage
 {
 	GENERATED_BODY()
 public:
-	class UTexture2D * CrosshairsCenter;
-	UTexture2D * CrosshairsTop;
-	UTexture2D * CrosshairsBottom;
-	UTexture2D * CrosshairsLeft;
-	UTexture2D * CrosshairsRight;
+	class UTexture2D* CrosshairsCenter;
+	UTexture2D* CrosshairsTop;
+	UTexture2D* CrosshairsBottom;
+	UTexture2D* CrosshairsLeft;
+	UTexture2D* CrosshairsRight;
 	float CrosshairSpreadX;
 	float CrosshairSpreadY;
+	FLinearColor CrosshairColor;
 };
+
 /**
  * 
  */
@@ -30,9 +32,9 @@ class COMBATGASCOMPANION_API ACombatHUD : public AHUD
 
 
 public:
-	virtual  void DrawHUD() override;
+	virtual void DrawHUD() override;
 
-	void DrawCrosshair(UTexture2D* Texture,FVector2d ViewportCenter,FVector2d Spread);
+	void DrawCrosshair(UTexture2D* Texture, FVector2d ViewportCenter, FVector2d Spread, FLinearColor CrosshairColor);
 
 private:
 	FHUDPackage HUDPackage;
@@ -42,5 +44,5 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CrosshairSpreadMaxY = 16.f;
 public:
-	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package){ HUDPackage = Package;}
+	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 };
