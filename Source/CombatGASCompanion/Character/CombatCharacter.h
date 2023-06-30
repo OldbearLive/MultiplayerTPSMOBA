@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "InputAction.h"
@@ -15,7 +16,7 @@
 class UInputAction;
 
 UCLASS()
-class COMBATGASCOMPANION_API ACombatCharacter : public ACharacter, public IInteractWithCrosshairsInterface
+class COMBATGASCOMPANION_API ACombatCharacter : public ABaseCharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
