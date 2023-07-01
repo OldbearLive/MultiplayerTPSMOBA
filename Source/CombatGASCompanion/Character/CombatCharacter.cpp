@@ -68,7 +68,7 @@ void ACombatCharacter::PostInitializeComponents()
 }
 
 // Called to bind functionality to input
-void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+/*void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -83,7 +83,7 @@ void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(Fire, ETriggerEvent::Started, this, &ACombatCharacter::FFirePressed);
 		EnhancedInputComponent->BindAction(Fire, ETriggerEvent::Completed, this, &ACombatCharacter::FFireReleased);
 	}
-}
+}*/
 
 
 // Called every frame
@@ -111,14 +111,14 @@ void ACombatCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	/*if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
 			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(PilotInputMappingContext, 0);
 		}
-	}
+	}*/
 }
 
 
