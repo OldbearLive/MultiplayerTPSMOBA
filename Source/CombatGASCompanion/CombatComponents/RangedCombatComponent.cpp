@@ -107,14 +107,14 @@ void URangedCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			}
 			else
 			{
-				HUDPackage.CrosshairsCenter = nullptr;
+				HUDPackage.CrosshairsCenter = Character->DefaultCrosshair;
 				HUDPackage.CrosshairsTop = nullptr;
 				HUDPackage.CrosshairsBottom = nullptr;
 				HUDPackage.CrosshairsLeft = nullptr;
 				HUDPackage.CrosshairsRight = nullptr;
-				WeaponSpreadX = 0.f;
-				WeaponSpreadY = 0.f;
-				CrosshairAim = 0.f;
+				WeaponSpreadX = 1.f;
+				WeaponSpreadY = 1.f;
+				CrosshairAim = 1.f;
 			}
 			//DYNAMIC CROSSHAIR SPREAD
 			FVector2d WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
@@ -268,6 +268,10 @@ void URangedCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 			{
 				HUDPackage.CrosshairColor = EquippedWeapon->CrosshairDefaultColor;
 			}
+		}
+		else
+		{
+			HUDPackage.CrosshairColor = Character->CrosshairDefaultColor;
 		}
 		
 		if (!TraceHitResult.bBlockingHit)

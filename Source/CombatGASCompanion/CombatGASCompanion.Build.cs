@@ -11,18 +11,17 @@ public class CombatGASCompanion : ModuleRules
 		PublicDependencyModuleNames.AddRange(new[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore",
-			"GASCompanion",
 			"UMG",
-			"GameplayAbilities",
-			"GameplayTasks",
-			"GameplayTags",
 			"EnhancedInput",
 			"Niagara",
 			/*AnimGraphRunTime Required to use UKismetAnimationLibraryFunctions */
-			"AnimGraphRuntime"
+			"AnimGraphRuntime",
+			"GameplayAbilities"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new[] { "GASCompanion" });
+		PrivateDependencyModuleNames.AddRange(new[] { 
+			"GameplayTasks",
+			"GameplayTags"});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

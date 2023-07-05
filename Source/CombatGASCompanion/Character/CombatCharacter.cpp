@@ -3,13 +3,12 @@
 
 #include "CombatCharacter.h"
 
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "CombatGASCompanion/CombatGASCompanion.h"
 #include "CombatGASCompanion/CombatComponents/RangedCombatComponent.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerState.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -55,6 +54,22 @@ void ACombatCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ACombatCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ACombatCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	//Init ASC on Server
+	InitAbilityActorInfo();
+	
+}
+
+void ACombatCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	//Init ASC on Client
+	InitAbilityActorInfo();
 }
 
 void ACombatCharacter::PostInitializeComponents()
@@ -182,6 +197,17 @@ void ACombatCharacter::PlayHitReactMontage()
 	}
 }
 
+void ACombatCharacter::HighLightActor()
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(1);
+}
+
+void ACombatCharacter::UnHighLightActor()
+{
+	GetMesh()->SetRenderCustomDepth(false);
+}
+
 void ACombatCharacter::OnRep_ReplicatedMovement()
 {
 	Super::OnRep_ReplicatedMovement();
@@ -255,6 +281,16 @@ float ACombatCharacter::CalculateSpeed()
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	return Velocity.Size();
+}
+
+void ACombatCharacter::InitAbilityActorInfo()
+{
+	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
+	check(CombatPlayerState);
+	CombatPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(CombatPlayerState,this);
+
+	AbilitySystemComponent = CombatPlayerState->GetAbilitySystemComponent();
+	AttributeSet = CombatPlayerState->GetAttributeSet();
 }
 
 void ACombatCharacter::SetOverlappingWeapon(ACombatRangedWeapon* Weapon)

@@ -30,8 +30,16 @@ public:
 	// Called to bind functionality to input
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Handles Replicated Variables
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	//Set ASC and Attributeset from Playerstate
+	virtual void PossessedBy(AController* NewController) override;
+
+	//Set ASC and Attributeset from Playerstate
+	virtual void OnRep_PlayerState() override;
+
+	
 	virtual void PostInitializeComponents() override;
 
 	virtual void Jump() override;
@@ -39,13 +47,27 @@ public:
 	virtual void PlayFireMontage(bool bIsAiming);
 	virtual void PlayHitReactMontage();
 
+	virtual void HighLightActor() override;
+	virtual void UnHighLightActor() override;
+
 	virtual void OnRep_ReplicatedMovement() override;
+
+
+	
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+    	class UTexture2D* DefaultCrosshair;
+
+	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
+	FLinearColor CrosshairDefaultColor;
+
 
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	
+	
 	void FMove(const FInputActionValue& Value);
 
 	void FLook(const FInputActionValue& Value);
@@ -73,6 +95,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* Fire;
 
+
+
+	
 	//AimVariables
 
 	void AimOffset(float DeltaTime);
@@ -80,6 +105,10 @@ protected:
 	void SimProxiesTurn();
 	void CalculateAO_Pitch();
 
+
+	//Highlight
+
+	
 
 private:
 	//AimPrivate Variables
@@ -139,8 +168,7 @@ private:
 	float CalculateSpeed();
 
 
-
-
+	void InitAbilityActorInfo();
 	
 public:
 	void SetOverlappingWeapon(ACombatRangedWeapon* Weapon);

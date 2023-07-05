@@ -10,6 +10,7 @@
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class IInteractWithCrosshairsInterface;
 
 /**
  * 
@@ -23,19 +24,77 @@ public:
 
 	ACombatPlayerController();
 
+	virtual void PlayerTick(float DeltaTime) override;
+
 protected:
 
 	virtual void BeginPlay() override;
 
 	virtual void SetupInputComponent() override;
 
+	
+
 private:
+
+	//InputMappingContext -> Set in BP
 	UPROPERTY(EditAnywhere,Category = "Input")
 	TObjectPtr<UInputMappingContext>CombatContext;
 
+	/*
+	 *
+	 **INPUTACTIONS SECTION
+	 * 
+	 */
 	
+	//InputActions  Move -> Set in BP
 	UPROPERTY(EditAnywhere,Category = "Input")
 	TObjectPtr<UInputAction>MoveAction;
+	
+	//InputMappingContext Look -> Set in BP
+	UPROPERTY(EditAnywhere,Category = "Input")
+	TObjectPtr<UInputAction>LookAction;
 
+	//InputMappingContext Jump -> Set in BP
+	UPROPERTY(EditAnywhere,Category = "Input")
+	TObjectPtr<UInputAction>JumpAction;
+	
+	//InputMappingContext Equip -> Set in BP
+	UPROPERTY(EditAnywhere,Category = "Input")
+	TObjectPtr<UInputAction>EquipAction;
+
+	//InputMappingContext Aim -> Set in BP
+	UPROPERTY(EditAnywhere,Category = "Input")
+	TObjectPtr<UInputAction>AimAction;
+	
+	//InputMappingContext Fire -> Set in BP
+	UPROPERTY(EditAnywhere,Category = "Input")
+	TObjectPtr<UInputAction>FireAction;
+	
+	/*
+	 *
+	 **InputActionFunctions SECTION
+	 * 
+	 */
+
+	//InputFunction Move -> Bound to InputAction of Same name
 	void Move(const FInputActionValue& InputActionValue);
+
+	//InputFunction Move -> Bound to InputAction of Same name
+	void Look(const FInputActionValue& InputActionValue);
+
+
+
+	//
+	//Tracing on Crosshair position
+	//
+	//
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+	
+	IInteractWithCrosshairsInterface* LastActor;
+	IInteractWithCrosshairsInterface* ThisActor;
+	
+
 };
+
+
+
