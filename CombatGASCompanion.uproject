@@ -12,7 +12,9 @@
 				"GASCompanion",
 				"GameplayAbilities",
 				"Engine",
-				"GameFeatures"
+				"GameFeatures",
+				"UMG",
+				"CoreUObject"
 			]
 		}
 	],
