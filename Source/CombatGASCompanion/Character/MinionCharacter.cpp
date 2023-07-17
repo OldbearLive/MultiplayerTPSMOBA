@@ -22,7 +22,7 @@ void AMinionCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AbilitySystemComponent->InitAbilityActorInfo(this,this);
+	InitAbilityActorInfo();
 }
 
 void AMinionCharacter::HighLightActor()
@@ -35,4 +35,10 @@ void AMinionCharacter::HighLightActor()
 void AMinionCharacter::UnHighLightActor()
 {
 	GetMesh()->SetRenderCustomDepth(false);
+}
+
+void AMinionCharacter::InitAbilityActorInfo()
+{
+	AbilitySystemComponent->InitAbilityActorInfo(this,this);
+	Cast<UCombatAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }

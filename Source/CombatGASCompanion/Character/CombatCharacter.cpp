@@ -7,7 +7,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "CombatGASCompanion/CombatGASCompanion.h"
+#include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/CombatComponents/RangedCombatComponent.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerState.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -70,6 +72,27 @@ void ACombatCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 	//Init ASC on Client
 	InitAbilityActorInfo();
+}
+
+void ACombatCharacter::InitAbilityActorInfo()
+{
+	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
+	check(CombatPlayerState);
+	CombatPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(CombatPlayerState,this);
+
+
+	Cast<UCombatAbilitySystemComponent>(CombatPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
+	AbilitySystemComponent = CombatPlayerState->GetAbilitySystemComponent();
+	AttributeSet = CombatPlayerState->GetAttributeSet();
+
+	if(ACombatPlayerController* CombatPlayerController = Cast<ACombatPlayerController>(GetController()))
+	{
+		ACombatHUD* CombatHUD = Cast<ACombatHUD>(CombatPlayerController->GetHUD());
+		if(CombatHUD)
+		{
+			CombatHUD->InitOverlay(CombatPlayerController,CombatPlayerState,AbilitySystemComponent,AttributeSet);
+		}
+	}
 }
 
 void ACombatCharacter::PostInitializeComponents()
@@ -283,15 +306,7 @@ float ACombatCharacter::CalculateSpeed()
 	return Velocity.Size();
 }
 
-void ACombatCharacter::InitAbilityActorInfo()
-{
-	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
-	check(CombatPlayerState);
-	CombatPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(CombatPlayerState,this);
 
-	AbilitySystemComponent = CombatPlayerState->GetAbilitySystemComponent();
-	AttributeSet = CombatPlayerState->GetAttributeSet();
-}
 
 void ACombatCharacter::SetOverlappingWeapon(ACombatRangedWeapon* Weapon)
 {

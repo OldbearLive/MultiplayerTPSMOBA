@@ -168,6 +168,9 @@ private:
 	float CalculateSpeed();
 
 
+	/**
+	 * @brief 
+	 */
 	void InitAbilityActorInfo();
 	
 public:

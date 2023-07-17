@@ -90,8 +90,8 @@ private:
 	//
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 	
-	IInteractWithCrosshairsInterface* LastActor;
-	IInteractWithCrosshairsInterface* ThisActor;
+	TObjectPtr<IInteractWithCrosshairsInterface>  LastActor;
+	TObjectPtr<IInteractWithCrosshairsInterface> ThisActor;
 	
 
 };

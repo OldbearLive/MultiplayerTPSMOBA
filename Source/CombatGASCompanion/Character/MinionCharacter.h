@@ -24,5 +24,7 @@ public:
 	// Crosshair Interface Functions
 	virtual void HighLightActor() override;
 	virtual void UnHighLightActor() override;
+
+virtual void InitAbilityActorInfo() override;
 	//End Crosshair Interface Section
 };

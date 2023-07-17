@@ -23,4 +23,8 @@ void ABaseCharacter::BeginPlay()
 	
 }
 
+void ABaseCharacter::InitAbilityActorInfo()
+{
+}
+
 
