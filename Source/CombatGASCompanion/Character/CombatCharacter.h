@@ -39,6 +39,11 @@ public:
 	//Set ASC and Attributeset from Playerstate
 	virtual void OnRep_PlayerState() override;
 
+	//Get Level From CombatInterface
+	virtual int32 GetPlayerLevel() override;
+
+	
+
 	
 	virtual void PostInitializeComponents() override;
 

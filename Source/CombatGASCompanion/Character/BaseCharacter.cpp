@@ -3,6 +3,8 @@
 
 #include "BaseCharacter.h"
 
+#include "AbilitySystemComponent.h"
+
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
@@ -25,6 +27,29 @@ void ABaseCharacter::BeginPlay()
 
 void ABaseCharacter::InitAbilityActorInfo()
 {
+}
+
+void ABaseCharacter::InitializeDefaultAttributes() const
+{
+	ApplyEffectSpecToSelf(DefaultPrimaryAttributes,1.f);
+	ApplyEffectSpecToSelf(DefaultSecondaryAttributes,1.f);
+	ApplyEffectSpecToSelf(DefaultVitalAttributes,1.f);
+	
+}
+
+void ABaseCharacter::ApplyEffectSpecToSelf(TSubclassOf<UGameplayEffect> GameplayEffect, float Level) const
+{
+	if(IsValid(GetAbilitySystemComponent()))
+	{
+		if(IsValid(GameplayEffect))
+		{
+			auto EffectContext = GetAbilitySystemComponent()->MakeEffectContext();
+			EffectContext.AddSourceObject(this);
+			const auto EffectSpec = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffect,Level,EffectContext);
+			GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*EffectSpec.Data.Get(),GetAbilitySystemComponent());
+			
+		}
+	}
 }
 
 

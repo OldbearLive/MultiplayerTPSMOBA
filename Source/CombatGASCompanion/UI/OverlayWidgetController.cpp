@@ -3,6 +3,7 @@
 
 #include "OverlayWidgetController.h"
 
+#include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -23,44 +24,56 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UCombatAttributeSet* CombatAttributeSet = CastChecked<UCombatAttributeSet>(AttributeSet);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetHealthAttribute()).AddUObject
-	(
-		this,
-	 &UOverlayWidgetController::HealthChanged
-	 );
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetMaxHealthAttribute()).AddUObject
-	(
-		this,
-	 &UOverlayWidgetController::MaxHealthChanged
-	 );
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetEnergyAttribute()).AddUObject
-	(
-		this,
-	 &UOverlayWidgetController::EnergyChanged
-	 );
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetMaxEnergyAttribute()).AddUObject
-	(
-		this,
-	 &UOverlayWidgetController::MaxEnergyChanged
-	 );
-}
+	//Lambdas to bind to Delegates
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetHealthAttribute()).
+	                        AddLambda(
+		                        [this](const FOnAttributeChangeData& Data)
+		                        {
+			                        OnHealthChangedSignature.Broadcast(Data.NewValue);
+		                        }
+	                        );
 
-void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnHealthChangedSignature.Broadcast(Data.NewValue);
-}
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetMaxHealthAttribute()).
+	                        AddLambda(
+		                        [this](const FOnAttributeChangeData& Data)
+		                        {
+			                        OnMaxHealthChangedSignature.Broadcast(Data.NewValue);
+		                        }
+	                        );
 
-void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxHealthChangedSignature.Broadcast(Data.NewValue);
-}
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetEnergyAttribute()).
+	                        AddLambda(
+		                        [this](const FOnAttributeChangeData& Data)
+		                        {
+			                        OnEnergyChangedSignature.Broadcast(Data.NewValue);
+		                        }
+	                        );
 
-void UOverlayWidgetController::EnergyChanged(const FOnAttributeChangeData& Data) const
-{
-	OnEnergyChangedSignature.Broadcast(Data.NewValue);
-}
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetMaxEnergyAttribute()).
+	                        AddLambda(
+		                        [this](const FOnAttributeChangeData& Data)
+		                        {
+			                        OnMaxEnergyChangedSignature.Broadcast(Data.NewValue);
+		                        }
+	                        );
 
-void UOverlayWidgetController::MaxEnergyChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxEnergyChangedSignature.Broadcast(Data.NewValue);
+	//Effect Asset Tag Lambdas
+	Cast<UCombatAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda
+	(
+		[this](const FGameplayTagContainer& AssetTags)
+		{
+			for (const FGameplayTag& Tag : AssetTags)
+			{
+				// if Tag.Matches (Parent) a.1 matches (a), it returns true, argument taken in brackets needs to be less
+				// in the heirarchy of tags to match
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+				if (Tag.MatchesTag(MessageTag))
+				{
+					const FUIWidgetRow* UIRow = GetDataTableByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+
+					MessageWudgetRowDelegate.Broadcast(*UIRow);
+				}
+			}
+		}
+	);
 }

@@ -6,10 +6,33 @@
 #include "CombatWidgetController.h"
 #include "OverlayWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature,float,NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature,float,NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnergyChangedSignature,float,NewEnergy);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxEnergyChangedSignature,float,NewMaxEnergy);
+class UCombatUserWidget;
+
+USTRUCT(BlueprintType)
+struct FUIWidgetRow: public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FGameplayTag MessageTag = FGameplayTag();
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FText Message = FText();
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TSubclassOf<UCombatUserWidget> MessageWidget;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UTexture2D*Image = nullptr;
+};
+
+
+//DELEGATES
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWudgetRowSignature,FUIWidgetRow,NewMaxEnergy);
+
+
 
 /**
  * 
@@ -23,21 +46,39 @@ public:
 	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
-	FOnHealthChangedSignature OnHealthChangedSignature;
+	FOnAttributeChangedSignature OnHealthChangedSignature;
 
 	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
-	FOnMaxHealthChangedSignature OnMaxHealthChangedSignature;
+	FOnAttributeChangedSignature OnMaxHealthChangedSignature;
 	
 	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
-	FOnEnergyChangedSignature OnEnergyChangedSignature;
+	FOnAttributeChangedSignature OnEnergyChangedSignature;
 	
 	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
-	FOnMaxEnergyChangedSignature OnMaxEnergyChangedSignature;
+	FOnAttributeChangedSignature OnMaxEnergyChangedSignature;
+
+	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Messages")
+	FMessageWudgetRowSignature MessageWudgetRowDelegate;
 
 protected:
 
-	void HealthChanged(const FOnAttributeChangeData&Data) const;
-	void MaxHealthChanged(const FOnAttributeChangeData&Data) const;
-	void EnergyChanged(const FOnAttributeChangeData&Data) const;
-	void MaxEnergyChanged(const FOnAttributeChangeData&Data) const;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category = "Widget Data")
+	TObjectPtr<UDataTable> MessageWidgetDataTable;
+	
+	
+	template<typename T>
+	T* GetDataTableByTag(UDataTable* DataTable, const FGameplayTag& Tag);
+	
 };
+
+template <typename T>
+T* UOverlayWidgetController::GetDataTableByTag(UDataTable* DataTable, const FGameplayTag& Tag)
+{
+	T* Row = DataTable->FindRow<T>(Tag.GetTagName(), TEXT(""));
+	if(Row)
+	{
+		return Row;
+	}
+	return nullptr;
+}
+

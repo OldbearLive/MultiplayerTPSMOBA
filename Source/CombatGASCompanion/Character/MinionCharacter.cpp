@@ -37,6 +37,11 @@ void AMinionCharacter::UnHighLightActor()
 	GetMesh()->SetRenderCustomDepth(false);
 }
 
+int32 AMinionCharacter::GetPlayerLevel()
+{
+	return Level;
+}
+
 void AMinionCharacter::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this,this);

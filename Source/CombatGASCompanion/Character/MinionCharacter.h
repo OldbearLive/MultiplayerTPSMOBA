@@ -11,20 +11,29 @@
  * 
  */
 UCLASS()
-class COMBATGASCOMPANION_API AMinionCharacter : public ABaseCharacter,public IInteractWithCrosshairsInterface
+class COMBATGASCOMPANION_API AMinionCharacter : public ABaseCharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
 public:
-	
 	AMinionCharacter();
 
-	virtual void BeginPlay() override;
 
 	// Crosshair Interface Functions
 	virtual void HighLightActor() override;
 	virtual void UnHighLightActor() override;
-
-virtual void InitAbilityActorInfo() override;
 	//End Crosshair Interface Section
+
+	// Combat Interface Functions
+	virtual int32 GetPlayerLevel() override;
+	// End Combat Interface Functions
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void InitAbilityActorInfo() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	int32 Level = 1;
+
+private:
 };

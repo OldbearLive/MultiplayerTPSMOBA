@@ -6,6 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "CombatAbilitySystemComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags,const FGameplayTagContainer&/*AssetTags*/);
+
 /**
  * 
  */
@@ -16,6 +18,9 @@ class COMBATGASCOMPANION_API UCombatAbilitySystemComponent : public UAbilitySyst
 
 public:
 	void AbilityActorInfoSet();
+
+	FEffectAssetTags EffectAssetTags;
+
 
 	
 protected:

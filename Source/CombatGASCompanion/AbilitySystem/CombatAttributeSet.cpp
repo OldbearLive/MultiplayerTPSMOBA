@@ -10,20 +10,43 @@
 
 UCombatAttributeSet::UCombatAttributeSet()
 {
-	InitHealth(50.f);
-	InitMaxHealth(100.f);
-	InitEnergy(50.f);
-	InitMaxEnergy(100.f);
+	
 }
 
 void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	//VitalAttribute
+	
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Health, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Energy, COND_None, REPNOTIFY_Always);
+	
+
+	//BatteryAttribute
+	
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Battery, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxBattery, COND_None, REPNOTIFY_Always);
+
+	//PrimaryAttribute
+	
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Spirit, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Toughness, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Technique, COND_None, REPNOTIFY_Always);
+
+	//SecondaryAttributes
+	
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxEnergy, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyEfficiency, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyPenetration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, OverloadChance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, OverloadDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyRegeneration, COND_None, REPNOTIFY_Always);
+
+
+	
 }
 
 void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -83,21 +106,65 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
+
+	if(Data.EvaluatedData.Attribute== GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+	}
+	if(Data.EvaluatedData.Attribute== GetEnergyAttribute())
+	{
+		SetEnergy(FMath::Clamp(GetEnergy(),0.f,GetMaxEnergy()));
+	}
 }
 
+// Vital Attributes Section Start
 void UCombatAttributeSet::OnRep_Health(const FGameplayAttributeData OldHealth) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Health, OldHealth);
 }
 
-void UCombatAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData OldMaxHealth) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, MaxHealth, OldMaxHealth);
-}
-
 void UCombatAttributeSet::OnRep_Energy(const FGameplayAttributeData OldEnergy) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Energy, OldEnergy);
+}
+// Vital Attributes Section End
+
+
+// Battery Attributes Section Start
+void UCombatAttributeSet::OnRep_Battery(const FGameplayAttributeData OldBattery) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Battery, OldBattery);
+}
+
+void UCombatAttributeSet::OnRep_MaxBattery(const FGameplayAttributeData OldMaxBattery) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, MaxBattery, OldMaxBattery);
+}
+// Battery Attributes Section End
+
+
+// Primary Attributes Section Start
+void UCombatAttributeSet::OnRep_Toughness(const FGameplayAttributeData OldToughness) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Toughness, OldToughness);
+}
+
+void UCombatAttributeSet::OnRep_Technique(const FGameplayAttributeData OldTechnique) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Technique, OldTechnique);
+}
+
+void UCombatAttributeSet::OnRep_Spirit(const FGameplayAttributeData OldSpirit) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Spirit, OldSpirit);
+}
+// Primary Attributes Section End
+
+
+// Secondary Attributes Section Start
+void UCombatAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData OldMaxHealth) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, MaxHealth, OldMaxHealth);
 }
 
 void UCombatAttributeSet::OnRep_MaxEnergy(const FGameplayAttributeData OldMaxEnergy) const
@@ -105,4 +172,33 @@ void UCombatAttributeSet::OnRep_MaxEnergy(const FGameplayAttributeData OldMaxEne
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, MaxEnergy, OldMaxEnergy);
 }
 
+void UCombatAttributeSet::OnRep_EnergyEfficiency(const FGameplayAttributeData OldEnergyEfficiency) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, EnergyEfficiency, OldEnergyEfficiency);
+}
 
+void UCombatAttributeSet::OnRep_EnergyPenetration(const FGameplayAttributeData OldEnergyPenetration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, EnergyPenetration, OldEnergyPenetration);
+}
+
+void UCombatAttributeSet::OnRep_OverloadChance(const FGameplayAttributeData OldOverloadChance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, OverloadChance, OldOverloadChance);
+}
+
+void UCombatAttributeSet::OnRep_OverloadDamage(const FGameplayAttributeData OldOverloadDamage) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, OverloadDamage, OldOverloadDamage);
+}
+
+void UCombatAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData OldHealthRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, HealthRegeneration, OldHealthRegeneration);
+}
+
+void UCombatAttributeSet::OnRep_EnergyRegeneration(const FGameplayAttributeData OldEnergyRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, EnergyPenetration, OldEnergyRegeneration);
+}
+// Secondary Attributes Section End

@@ -74,6 +74,20 @@ void ACombatCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+int32 ACombatCharacter::GetPlayerLevel()
+{
+	ACombatPlayerState* CombatPlayerState= GetPlayerState<ACombatPlayerState>();
+	if(CombatPlayerState)
+	{
+		return CombatPlayerState->GetPlayerLevel();
+	}
+	else
+	{
+		Super::GetPlayerLevel();
+	}
+	return 0;
+}
+
 void ACombatCharacter::InitAbilityActorInfo()
 {
 	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
@@ -93,6 +107,7 @@ void ACombatCharacter::InitAbilityActorInfo()
 			CombatHUD->InitOverlay(CombatPlayerController,CombatPlayerState,AbilitySystemComponent,AttributeSet);
 		}
 	}
+	InitializeDefaultAttributes();
 }
 
 void ACombatCharacter::PostInitializeComponents()
