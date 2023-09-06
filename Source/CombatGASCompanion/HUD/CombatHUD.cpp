@@ -4,6 +4,7 @@
 #include "CombatHUD.h"
 
 #include "Blueprint/UserWidget.h"
+#include "CombatGASCompanion/UI/AttributeWidgetController.h"
 #include "CombatGASCompanion/UI/CombatUserWidget.h"
 #include "CombatGASCompanion/UI/OverlayWidgetController.h"
 
@@ -78,6 +79,17 @@ void ACombatHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySy
 	WidgetController->BroadcastInitialValues();
 	
 	Widget->AddToViewport();
+}
+
+UAttributeWidgetController* ACombatHUD::GetAttributeWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if(AttributeWidgetController== nullptr)
+	{
+		AttributeWidgetController= NewObject<UAttributeWidgetController>(this,AttributeWidgetControllerClass);
+		AttributeWidgetController->SetWidgetControllerParams(WCParams);
+		AttributeWidgetController->BindCallbacksToDependencies();
+	}
+	return AttributeWidgetController;
 }
 
 void ACombatHUD::DrawCrosshair(UTexture2D* Texture, FVector2d ViewportCenter, FVector2d Spread,

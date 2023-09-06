@@ -14,7 +14,8 @@
 				"Engine",
 				"GameFeatures",
 				"UMG",
-				"CoreUObject"
+				"CoreUObject",
+				"EnhancedInput"
 			]
 		}
 	],

@@ -19,6 +19,10 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	//virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
+	
+
+protected:
+
 
 private:
 	UPROPERTY(BlueprintReadOnly, Category="Character", meta = (AllowPrivateAccess="true"))
@@ -36,7 +40,7 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
 	bool bIsAccelerating;
 
-	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
+	UPROPERTY(BlueprintReadOnly, Category="Weapon", meta = (AllowPrivateAccess="true"))
 	bool bWeaponEquipped;
 
 	class ACombatRangedWeapon* EquippedWeapon;

@@ -21,12 +21,17 @@ public:
 
 	FEffectAssetTags EffectAssetTags;
 
+	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilites);
+	void AddWeaponEquipAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupWeaponEquipAbilities);
 
+	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	
 protected:
+
+	UFUNCTION(Client,Reliable)
+	void ClientEffectsApplied(UAbilitySystemComponent* AbilitySystemComponent,const FGameplayEffectSpec& EffectSpec,FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
+
 	
-	void EffectsApplied(UAbilitySystemComponent* AbilitySystemComponent,const FGameplayEffectSpec& EffectSpec,FActiveGameplayEffectHandle ActiveGameplayEffectHandle);
-
-
 	
 };

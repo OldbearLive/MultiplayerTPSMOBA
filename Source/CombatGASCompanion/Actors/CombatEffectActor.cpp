@@ -5,8 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemInterface.h"
-#include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
+
 
 
 // Sets default values

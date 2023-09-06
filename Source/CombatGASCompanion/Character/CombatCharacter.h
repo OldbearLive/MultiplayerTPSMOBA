@@ -4,16 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
-#include "InputActionValue.h"
-#include "GameFramework/Character.h"
-#include "InputAction.h"
-#include "CombatGASCompanion/Weapon/CombatRangedWeapon.h"
-#include "ModularGameplayActors/GSCModularCharacter.h"
 #include "CombatGASCompanion/CombatTypes/TurnInPlace.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
 #include "CombatCharacter.generated.h"
 
-class UInputAction;
 
 UCLASS()
 class COMBATGASCOMPANION_API ACombatCharacter : public ABaseCharacter, public IInteractWithCrosshairsInterface
@@ -47,10 +41,9 @@ public:
 	
 	virtual void PostInitializeComponents() override;
 
-	virtual void Jump() override;
 
-	virtual void PlayFireMontage(bool bIsAiming);
-	virtual void PlayHitReactMontage();
+	virtual void Jump() override;
+	
 
 	virtual void HighLightActor() override;
 	virtual void UnHighLightActor() override;
@@ -65,6 +58,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
 	FLinearColor CrosshairDefaultColor;
 
+	UPROPERTY(BlueprintReadWrite,Replicated, Category = "Weapon")
+	bool bIsWeaponEquipped;
+
 
 
 protected:
@@ -73,35 +69,6 @@ protected:
 
 	
 	
-	void FMove(const FInputActionValue& Value);
-
-	void FLook(const FInputActionValue& Value);
-
-	void FEquip();
-
-	void FAimPressed();
-	void FAimReleased();
-	void FFirePressed();
-	void FFireReleased();
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputMappingContext* PilotInputMappingContext;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* Move;
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* Look;
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* JumpAction;
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* Equip;
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* Aim;
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* Fire;
-
-
-
 	
 	//AimVariables
 
@@ -134,34 +101,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class UCameraComponent* CameraComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess ="true"))
-	class UWidgetComponent* OverheadWidget;
-
-	UPROPERTY(ReplicatedUsing=OnRep_OverlappingWeapon)
-	class ACombatRangedWeapon* OverlappingWeapon;
-
-	UFUNCTION()
-	void OnRep_OverlappingWeapon(ACombatRangedWeapon* LastWeapon);
-
 	UPROPERTY(VisibleAnywhere)
 	class URangedCombatComponent* CombatComponent;
-
-	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed();
-
-	//Animation
-	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* FireWeaponMontage;
-
-	UPROPERTY(EditAnywhere, Category = Combat)
-	UAnimMontage* HitReactMontage;
-
-
+	
+	
 	//CameraHideFunction
 	void HideCamIfCharacterClose();
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float HideCamThreshhold;
+
 	//Simproxy Turns
 	bool bRotateRootBone;
 	float TurnThreshhold = 0.5f;
@@ -174,30 +123,33 @@ private:
 
 
 	/**
-	 * @brief 
+	 * GAS Function to initialize AbilityActorInfo 
 	 */
 	void InitAbilityActorInfo();
+
+
+	UPROPERTY(EditAnywhere,Category = "Abilities|DefaultAbilities")
+	TArray<TSubclassOf<UGameplayAbility>> WeaponStartupAbilities;
+
+	
 	
 public:
-	void SetOverlappingWeapon(ACombatRangedWeapon* Weapon);
 
-	bool IsWeaponEquipped();
-	bool IsAiming();
-
+	
 	//MC RPCS
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastHit();
+	
 
 
 	//GETTERS
 
 
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
+	FORCEINLINE bool GetWeaponEquip() { return bIsWeaponEquipped; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurnInPlace; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
-	ACombatRangedWeapon* GetEquippedWeapon();
+
 	FVector GetHitTarget() const;
 };

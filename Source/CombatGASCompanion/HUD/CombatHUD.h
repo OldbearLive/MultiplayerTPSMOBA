@@ -10,6 +10,7 @@
 
 class UOverlayWidgetController;
 class UCombatUserWidget;
+class UAttributeWidgetController;
 
 struct FWidgetControllerParams;
 
@@ -42,33 +43,38 @@ public:
 	virtual void DrawHUD() override;
 
 protected:
-
-
 	/*
 	 *
 	 *Overlay WidgetDrawing Functionality
 	 * 
 	 */
 public:
-
-	UPROPERTY()
-	TObjectPtr<UCombatUserWidget> OverlayWidget;
+	
 
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 
-	void InitOverlay(APlayerController*PC,APlayerState*PS,UAbilitySystemComponent*ASC,UAttributeSet*AS);
+	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+
+	UAttributeWidgetController* GetAttributeWidgetController(const FWidgetControllerParams& WCParams);
 
 private:
-
+	UPROPERTY()
+	TObjectPtr<UCombatUserWidget> OverlayWidget;
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UCombatUserWidget> OverlayWidgetClass;
 
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController;
-	
+
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UOverlayWidgetController>OverlayWidgetControllerClass;
-	
+	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<UAttributeWidgetController> AttributeWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAttributeWidgetController>AttributeWidgetControllerClass;
 	/*
 	 *
 	 *Crosshair Drawing Functionality

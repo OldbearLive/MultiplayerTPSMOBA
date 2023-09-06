@@ -4,6 +4,7 @@
 #include "BaseCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -50,6 +51,14 @@ void ABaseCharacter::ApplyEffectSpecToSelf(TSubclassOf<UGameplayEffect> Gameplay
 			
 		}
 	}
+}
+
+void ABaseCharacter::AddCharacterAbilities()
+{
+	UCombatAbilitySystemComponent* CombatASC = CastChecked<UCombatAbilitySystemComponent>(AbilitySystemComponent);
+	if(!HasAuthority())return;
+
+	CombatASC->AddCharacterAbilities(StartupAbiity);
 }
 
 

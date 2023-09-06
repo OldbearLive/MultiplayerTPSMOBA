@@ -27,8 +27,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 
-public:
-	void EquipWeapon(class ACombatRangedWeapon* WeaponToEquip);
+
 
 
 protected:
@@ -36,21 +35,7 @@ protected:
 	virtual void BeginPlay() override;
 
 
-	void SetAiming(bool bIsAiming);
-
-	UFUNCTION(Server, Reliable)
-	void Server_SetAiming(bool bIsAiming);
-
-	UFUNCTION()
-	void OnRep_EquippedWeapon();
-
-	void FireButtonPressed(bool bPressed);
-
-	UFUNCTION(Server, Reliable)
-	void Server_Fire(const FVector_NetQuantize& HitResult);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiCast_Fire(const FVector_NetQuantize& HitResult);
+	
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
@@ -62,9 +47,7 @@ private:
 	class ACombatPlayerController* PlayerController;
 
 	class ACombatHUD* HUD;
-
-	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	ACombatRangedWeapon* EquippedWeapon;
+	
 
 	UPROPERTY(Replicated)
 	bool bAiming;

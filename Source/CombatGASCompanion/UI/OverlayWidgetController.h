@@ -24,6 +24,9 @@ struct FUIWidgetRow: public FTableRowBase
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UTexture2D*Image = nullptr;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FLinearColor OutlineColor = FLinearColor::White;
 };
 
 

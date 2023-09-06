@@ -6,7 +6,6 @@
 #include "GameplayEffect.h"
 #include "GameFramework/Actor.h"
 #include "GameplayEffectTypes.h"
-#include "Components/SphereComponent.h"
 #include "CombatEffectActor.generated.h"
 
 

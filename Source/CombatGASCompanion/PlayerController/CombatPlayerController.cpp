@@ -3,8 +3,12 @@
 
 #include "CombatPlayerController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameplayTagContainer.h"
+#include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
+#include "CombatGASCompanion/Input/CombatEnhancedInputComponent.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -42,11 +46,16 @@ void ACombatPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	UCombatEnhancedInputComponent* EnhancedInputComponent = CastChecked<UCombatEnhancedInputComponent>(InputComponent);
 
 
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACombatPlayerController::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACombatPlayerController::Look);
+
+	EnhancedInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagsPressed,
+	                                           &ThisClass::AbilityInputTagsReleased,
+	                                           &ThisClass::AbilityInputTagsHeld);
+
 	/*EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, );
 	EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ACombatPlayerController::Equip);
 	EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &ACombatPlayerController::FAimPressed);
@@ -86,6 +95,36 @@ void ACombatPlayerController::Look(const FInputActionValue& InputActionValue)
 	}
 }
 
+UCombatAbilitySystemComponent* ACombatPlayerController::GetCombatASC()
+{
+	if (CombatAbilitySystemComponent == nullptr)
+	{
+		CombatAbilitySystemComponent = Cast<UCombatAbilitySystemComponent>(
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+	}
+	return CombatAbilitySystemComponent;
+}
+
+void ACombatPlayerController::AbilityInputTagsPressed(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
+}
+
+void ACombatPlayerController::AbilityInputTagsReleased(FGameplayTag InputTag)
+{
+	if(GetCombatASC()==nullptr)return;
+	GetCombatASC()->AbilityInputTagReleased(InputTag);
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Blue, *InputTag.ToString());
+}
+
+void ACombatPlayerController::AbilityInputTagsHeld(FGameplayTag InputTag)
+{
+	if(GetCombatASC()==nullptr)return;
+	GetCombatASC()->AbilityInputTagHeld(InputTag);
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Yellow, *InputTag.ToString());
+}
+
+
 void ACombatPlayerController::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 {
 	{
@@ -117,12 +156,13 @@ void ACombatPlayerController::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 				DrawDebugSphere(GetWorld(), Start, 12.f, 12, FColor::Red);
 			}
 
-			FVector End = Start + (CrosshairWorldDirection * 50000);
+			FVector End = Start + (CrosshairWorldDirection * TRACE_LENGTH);
 
 			GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
 
 			if (!TraceHitResult.bBlockingHit)return;
 
+			
 			LastActor = ThisActor;
 
 			ThisActor = Cast<IInteractWithCrosshairsInterface>(TraceHitResult.GetActor());

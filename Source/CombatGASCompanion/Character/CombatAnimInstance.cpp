@@ -7,6 +7,7 @@
 #include "AnimGraphRuntime/Public/KismetAnimationLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 void UCombatAnimInstance::NativeInitializeAnimation()
 {
@@ -39,11 +40,11 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	bIsAccelerating = CombatCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 
-	bWeaponEquipped = CombatCharacter->IsWeaponEquipped();
+	bWeaponEquipped = CombatCharacter->GetWeaponEquip();
 
-	EquippedWeapon = CombatCharacter->GetEquippedWeapon();
+	/*EquippedWeapon = CombatCharacter->GetEquippedWeapon();
 
-	bAiming = CombatCharacter->IsAiming();
+	bAiming = CombatCharacter->IsAiming();*/
 
 
 	//OFfset Yaw for Strafing
@@ -67,10 +68,10 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	AO_Yaw = CombatCharacter->GetAO_Yaw();
 	AO_Pitch = CombatCharacter->GetAO_Pitch();
 	TurnInPlace = CombatCharacter->GetTurningInPlace();
-	bRotateRootBone= CombatCharacter->ShouldRotateRootBone();
+	bRotateRootBone = CombatCharacter->ShouldRotateRootBone();
 
 
-	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CombatCharacter->GetMesh())
+	/*if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CombatCharacter->GetMesh())
 	{
 		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
 			FName("LeftHandSocket"), RTS_World);
@@ -103,10 +104,14 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 10000,
 						  FColor::Red);
 		
-			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), CombatCharacter->GetHitTarget(), FColor::Blue);*/
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), CombatCharacter->GetHitTarget(), FColor::Blue);#1#
 		}
-	}
+	}*/
 }
+
+
+
+
 
 ;
 

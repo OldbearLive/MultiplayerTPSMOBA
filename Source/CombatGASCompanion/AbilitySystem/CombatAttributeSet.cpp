@@ -5,12 +5,29 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectExtension.h"
+#include "CombatGASCompanion/CombatGameplayTagsSingleton.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
 UCombatAttributeSet::UCombatAttributeSet()
 {
+	const FCombatGameplayTags& GameplayTags= FCombatGameplayTags::Get();
 	
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Spirit,GetSpiritAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Technique,GetTechniqueAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Toughness,GetToughnessAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_Battery,GetBatteryAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_MaxBattery,GetMaxBatteryAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Energy,GetEnergyAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Health,GetHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyEfficiency,GetEnergyEfficiencyAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyPenetration,GetEnergyPenetrationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyRegeneration	,GetEnergyRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_HealthRegeneration,GetHealthRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxEnergy,GetMaxEnergyAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth,GetMaxHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadChance,GetOverloadChanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadDamage,GetOverloadDamageAttribute);
 }
 
 void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -23,9 +23,11 @@ enum class ERangedWeaponStates:uint8
 };
 
 /*
- *WEAPON STATES ENUM
+ *WEAPON STRUCTS
  *
  */
+
+
 UCLASS()
 class COMBATGASCOMPANION_API ACombatRangedWeapon : public AActor
 {
@@ -43,8 +45,6 @@ public:
 	/*
 	 *   PICKUPWIDGET
 	*/
-	void ShowPickupWidget(bool bShowWidget);
-
 
 	/*
     *WEAPON FIRE
@@ -94,65 +94,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// OVERLAP FUNCTIONS FOR PICKUP WIDGET
-	UFUNCTION()
-	virtual void OnSphereOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-
-	UFUNCTION()
-	void OnSphereEndOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
-	///END OVERLAP FUNCTION SECTION
-
 
 private:
+	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USkeletalMeshComponent* WeaponMesh;
-
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent* AreaSphere;
-
-
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponStates, VisibleAnywhere, Category = "Weapon Properties")
-	ERangedWeaponStates WeaponStates;
-
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class UWidgetComponent* PickupWidget;
-
-
+	
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	UAnimationAsset* FireAnimation;
 
-	UFUNCTION()
-	void OnRep_WeaponStates();
 
-	/*
-	 *
-	 *ZOOM Params
-	 */
-	UPROPERTY(EditAnywhere)
-	float ZoomedFOV;
-
-	UPROPERTY(EditAnywhere)
-	float ZoomInterpSpeed;
-
+	
 
 public:
-	void SetWeaponState(ERangedWeaponStates State);
-
-
-	FORCEINLINE USphereComponent* GetSphereComponent() const { return AreaSphere; }
+	
+	
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
-	FORCEINLINE float GetZoomFOV() const { return ZoomedFOV; }
-	FORCEINLINE float GetZoomInterp() const { return ZoomInterpSpeed; }
+	
 };

@@ -5,16 +5,17 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "InputActionValue.h"
+
 #include "CombatGASCompanion/CombatGASCompanion.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/CombatComponents/RangedCombatComponent.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerState.h"
-#include "Components/WidgetComponent.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+
 
 // Sets default values
 ACombatCharacter::ACombatCharacter()
@@ -37,9 +38,6 @@ ACombatCharacter::ACombatCharacter()
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
-	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
-	OverheadWidget->SetupAttachment(RootComponent);
-
 	CombatComponent = CreateDefaultSubobject<URangedCombatComponent>(TEXT("CombatComponent"));
 	CombatComponent->SetIsReplicated(true);
 
@@ -55,7 +53,9 @@ void ACombatCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ACombatCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ACombatCharacter,bIsWeaponEquipped,COND_None);
+
+	
 }
 
 void ACombatCharacter::PossessedBy(AController* NewController)
@@ -64,7 +64,9 @@ void ACombatCharacter::PossessedBy(AController* NewController)
 
 	//Init ASC on Server
 	InitAbilityActorInfo();
-	
+
+	//Give StartupAbilites
+	AddCharacterAbilities();
 }
 
 void ACombatCharacter::OnRep_PlayerState()
@@ -76,8 +78,8 @@ void ACombatCharacter::OnRep_PlayerState()
 
 int32 ACombatCharacter::GetPlayerLevel()
 {
-	ACombatPlayerState* CombatPlayerState= GetPlayerState<ACombatPlayerState>();
-	if(CombatPlayerState)
+	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
+	if (CombatPlayerState)
 	{
 		return CombatPlayerState->GetPlayerLevel();
 	}
@@ -92,22 +94,24 @@ void ACombatCharacter::InitAbilityActorInfo()
 {
 	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
 	check(CombatPlayerState);
-	CombatPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(CombatPlayerState,this);
+	CombatPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(CombatPlayerState, this);
 
 
 	Cast<UCombatAbilitySystemComponent>(CombatPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 	AbilitySystemComponent = CombatPlayerState->GetAbilitySystemComponent();
 	AttributeSet = CombatPlayerState->GetAttributeSet();
 
-	if(ACombatPlayerController* CombatPlayerController = Cast<ACombatPlayerController>(GetController()))
+	if (ACombatPlayerController* CombatPlayerController = Cast<ACombatPlayerController>(GetController()))
 	{
 		ACombatHUD* CombatHUD = Cast<ACombatHUD>(CombatPlayerController->GetHUD());
-		if(CombatHUD)
+		if (CombatHUD)
 		{
-			CombatHUD->InitOverlay(CombatPlayerController,CombatPlayerState,AbilitySystemComponent,AttributeSet);
+			CombatHUD->InitOverlay(CombatPlayerController, CombatPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
 	InitializeDefaultAttributes();
+	UCombatAbilitySystemComponent*CombatAbilitySystemComponent =Cast<UCombatAbilitySystemComponent>(AbilitySystemComponent);
+	CombatAbilitySystemComponent->AddWeaponEquipAbilities(WeaponStartupAbilities);
 }
 
 void ACombatCharacter::PostInitializeComponents()
@@ -119,25 +123,6 @@ void ACombatCharacter::PostInitializeComponents()
 		CombatComponent->Character = this;
 	}
 }
-
-// Called to bind functionality to input
-/*void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		EnhancedInputComponent->BindAction(Move, ETriggerEvent::Triggered, this, &ACombatCharacter::FMove);
-		EnhancedInputComponent->BindAction(Look, ETriggerEvent::Triggered, this, &ACombatCharacter::FLook);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACombatCharacter::Jump);
-		EnhancedInputComponent->BindAction(Equip, ETriggerEvent::Triggered, this, &ACombatCharacter::FEquip);
-		EnhancedInputComponent->BindAction(Aim, ETriggerEvent::Started, this, &ACombatCharacter::FAimPressed);
-		EnhancedInputComponent->BindAction(Aim, ETriggerEvent::Completed, this, &ACombatCharacter::FAimReleased);
-		EnhancedInputComponent->BindAction(Fire, ETriggerEvent::Started, this, &ACombatCharacter::FFirePressed);
-		EnhancedInputComponent->BindAction(Fire, ETriggerEvent::Completed, this, &ACombatCharacter::FFireReleased);
-	}
-}*/
-
 
 // Called every frame
 void ACombatCharacter::Tick(float DeltaTime)
@@ -163,35 +148,6 @@ void ACombatCharacter::Tick(float DeltaTime)
 void ACombatCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	/*if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
-			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(PilotInputMappingContext, 0);
-		}
-	}*/
-}
-
-
-void ACombatCharacter::FMove(const FInputActionValue& Value)
-{
-	const FVector2d MovementValue = Value.Get<FVector2d>();
-
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
-	const FVector ForwardDirection(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
-	AddMovementInput(ForwardDirection, MovementValue.Y);
-	const FVector RightDirection(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
-	AddMovementInput(RightDirection, MovementValue.X);
-}
-
-void ACombatCharacter::FLook(const FInputActionValue& Value)
-{
-	const FVector2d LookAxisVector = Value.Get<FVector2d>();
-	AddControllerPitchInput(LookAxisVector.Y);
-	AddControllerYawInput(LookAxisVector.X);
 }
 
 
@@ -201,39 +157,6 @@ void ACombatCharacter::Jump()
 	GetCharacterMovement()->bNotifyApex = true;
 }
 
-void ACombatCharacter::PlayFireMontage(bool bIsAiming)
-{
-	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr)
-	{
-		return;
-	}
-
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && FireWeaponMontage)
-	{
-		AnimInstance->Montage_Play(FireWeaponMontage);
-		FName SectionName;
-		SectionName = bIsAiming ? FName("RifleHip") : FName("RifleAim");
-		AnimInstance->Montage_JumpToSection(SectionName);
-	}
-}
-
-void ACombatCharacter::PlayHitReactMontage()
-{
-	if (CombatComponent == nullptr || CombatComponent->EquippedWeapon == nullptr)
-	{
-		return;
-	}
-
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && HitReactMontage)
-	{
-		AnimInstance->Montage_Play(HitReactMontage);
-		FName SectionName;
-		SectionName = FName("FromFront");
-		AnimInstance->Montage_JumpToSection(SectionName);
-	}
-}
 
 void ACombatCharacter::HighLightActor()
 {
@@ -256,64 +179,6 @@ void ACombatCharacter::OnRep_ReplicatedMovement()
 }
 
 
-void ACombatCharacter::FEquip()
-{
-	if (CombatComponent)
-	{
-		if (HasAuthority())
-		{
-			CombatComponent->EquipWeapon(OverlappingWeapon);
-		}
-		else
-		{
-			ServerEquipButtonPressed();
-		}
-	}
-}
-
-
-void ACombatCharacter::FAimPressed()
-{
-	if (CombatComponent)
-	{
-		CombatComponent->SetAiming(true);
-	}
-}
-
-void ACombatCharacter::FAimReleased()
-{
-	if (CombatComponent)
-	{
-		CombatComponent->SetAiming(false);
-	}
-}
-
-void ACombatCharacter::FFirePressed()
-{
-	if (CombatComponent)
-	{
-		CombatComponent->FireButtonPressed(true);
-	}
-}
-
-void ACombatCharacter::FFireReleased()
-{
-	if (CombatComponent)
-	{
-		CombatComponent->FireButtonPressed(false);
-	}
-}
-
-
-void ACombatCharacter::ServerEquipButtonPressed_Implementation()
-{
-	if (CombatComponent)
-	{
-		CombatComponent->EquipWeapon(OverlappingWeapon);
-	}
-}
-
-
 float ACombatCharacter::CalculateSpeed()
 {
 	FVector Velocity = GetVelocity();
@@ -323,42 +188,7 @@ float ACombatCharacter::CalculateSpeed()
 
 
 
-void ACombatCharacter::SetOverlappingWeapon(ACombatRangedWeapon* Weapon)
-{
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(false);
-	}
-	OverlappingWeapon = Weapon;
 
-	if (IsLocallyControlled())
-	{
-		if (OverlappingWeapon)
-		{
-			OverlappingWeapon->ShowPickupWidget(true);
-		}
-	}
-}
-
-bool ACombatCharacter::IsWeaponEquipped()
-{
-	return (CombatComponent && CombatComponent->EquippedWeapon);
-}
-
-bool ACombatCharacter::IsAiming()
-{
-	return (CombatComponent && CombatComponent->bAiming);
-}
-
-ACombatRangedWeapon* ACombatCharacter::GetEquippedWeapon()
-{
-	if (CombatComponent == nullptr)
-	{
-		return nullptr;
-	}
-
-	return CombatComponent->EquippedWeapon;
-}
 
 FVector ACombatCharacter::GetHitTarget() const
 {
@@ -423,7 +253,7 @@ void ACombatCharacter::SimProxiesTurn()
 	ProxyRotationLastFrame = ProxyRotation;
 	ProxyRotation = GetActorRotation();
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
-	
+
 	if (FMath::Abs(ProxyYaw) > TurnThreshhold)
 	{
 		bUseControllerRotationYaw = true;
@@ -478,44 +308,17 @@ void ACombatCharacter::FTurnInPlace(float DeltaTime)
 }
 
 
-void ACombatCharacter::OnRep_OverlappingWeapon(ACombatRangedWeapon* LastWeapon)
-{
-	if (OverlappingWeapon)
-	{
-		OverlappingWeapon->ShowPickupWidget(true);
-	}
-
-	if (LastWeapon)
-	{
-		LastWeapon->ShowPickupWidget(false);
-	}
-}
-
-
 void ACombatCharacter::HideCamIfCharacterClose()
 {
 	if (!IsLocallyControlled())return;
 	if ((CameraComponent->GetComponentLocation() - GetActorLocation()).Size() < HideCamThreshhold)
 	{
 		GetMesh()->SetVisibility(false);
-		if (CombatComponent && CombatComponent->EquippedWeapon && CombatComponent->EquippedWeapon->GetWeaponMesh())
-		{
-			CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
-		}
 	}
 	else
 	{
 		GetMesh()->SetVisibility(true);
-		if (CombatComponent && CombatComponent->EquippedWeapon && CombatComponent->EquippedWeapon->GetWeaponMesh())
-		{
-			CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
-		}
 	}
 }
 
 //MC RPC IMPLEMENTATIONS
-
-void ACombatCharacter::MulticastHit_Implementation()
-{
-	PlayHitReactMontage();
-}

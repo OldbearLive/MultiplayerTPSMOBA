@@ -4,14 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameplayTagContainer.h"
 #include "CombatPlayerController.generated.h"
 
 
+
+class UCombatInputConfig;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class IInteractWithCrosshairsInterface;
+class UCombatAbilitySystemComponent;
 
+
+#define TRACE_LENGTH  80000.f
 /**
  * 
  */
@@ -82,8 +88,21 @@ private:
 	//InputFunction Move -> Bound to InputAction of Same name
 	void Look(const FInputActionValue& InputActionValue);
 
+	//ABILITY INPUT ACTIONS
 
+	UPROPERTY(EditDefaultsOnly,Category="Input")
+	TObjectPtr<UCombatAbilitySystemComponent>CombatAbilitySystemComponent;
 
+	UCombatAbilitySystemComponent*GetCombatASC();
+	
+	UPROPERTY(EditDefaultsOnly,Category="Input")
+	TObjectPtr<UCombatInputConfig> InputConfig;
+
+	void AbilityInputTagsPressed(FGameplayTag InputTag);
+	void AbilityInputTagsReleased(FGameplayTag InputTag);
+	void AbilityInputTagsHeld(FGameplayTag InputTag);
+
+	//
 	//
 	//Tracing on Crosshair position
 	//
