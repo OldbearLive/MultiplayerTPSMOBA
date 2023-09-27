@@ -74,6 +74,7 @@ protected:
 	
 };
 
+// TEMPLATE FUNCTION TO DEFINE MESSAGE DATA WITH TAG TO DISPLAY IT ON PICKUPS
 template <typename T>
 T* UOverlayWidgetController::GetDataTableByTag(UDataTable* DataTable, const FGameplayTag& Tag)
 {

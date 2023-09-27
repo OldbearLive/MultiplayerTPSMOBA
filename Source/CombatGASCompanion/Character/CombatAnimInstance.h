@@ -43,7 +43,11 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category="Weapon", meta = (AllowPrivateAccess="true"))
 	bool bWeaponEquipped;
 
+	UPROPERTY(BlueprintReadOnly, Category="Weapon", meta = (AllowPrivateAccess="true"))
 	class ACombatRangedWeapon* EquippedWeapon;
+
+	UPROPERTY(BlueprintReadOnly, Category="Weapon", meta = (AllowPrivateAccess="true"))
+	int32 SelectedWeaponIndex;
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
 	bool bAiming;

@@ -6,8 +6,13 @@
 #include "BaseCharacter.h"
 #include "CombatGASCompanion/CombatTypes/TurnInPlace.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
+#include "CombatGASCompanion/UI/OverlayWidgetController.h"
+#include "Components/WidgetComponent.h"
 #include "CombatCharacter.generated.h"
 
+
+class ACombatRangedWeapon;
+class ACombatPlayerController;
 
 UCLASS()
 class COMBATGASCOMPANION_API ACombatCharacter : public ABaseCharacter, public IInteractWithCrosshairsInterface
@@ -36,14 +41,12 @@ public:
 	//Get Level From CombatInterface
 	virtual int32 GetPlayerLevel() override;
 
-	
 
-	
 	virtual void PostInitializeComponents() override;
 
 
 	virtual void Jump() override;
-	
+
 
 	virtual void HighLightActor() override;
 	virtual void UnHighLightActor() override;
@@ -51,25 +54,65 @@ public:
 	virtual void OnRep_ReplicatedMovement() override;
 
 
-	
 	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
-    	class UTexture2D* DefaultCrosshair;
+	class UTexture2D* DefaultCrosshair;
 
 	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
 	FLinearColor CrosshairDefaultColor;
 
-	UPROPERTY(BlueprintReadWrite,Replicated, Category = "Weapon")
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
 	bool bIsWeaponEquipped;
 
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
+	TArray<TObjectPtr<ACombatRangedWeapon>> CombatRangedWeaponsArray;
 
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
+	int32 ActiveWeaponIndex;
+
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
+	TArray<int32> AmmoClipArray;
+
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
+	TArray<int32> MaxAmmoClipArray;
+
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
+	TArray<int32> ReserveAmmoArray;
+
+	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
+	TArray<int32> MaxReserveAmmoArray;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+	
+	//
+	//REMOTE STATSBAR FOR PLAYER
+	//
+protected:
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> RemoteStatsBar;
+public:
+
 	
 	
+	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+	FOnAttributeChangedSignature OnHealthChangedSignature;
+
+	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+	FOnAttributeChangedSignature OnMaxHealthChangedSignature;
 	
+	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+	FOnAttributeChangedSignature OnEnergyChangedSignature;
+	
+	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+	FOnAttributeChangedSignature OnMaxEnergyChangedSignature;
+
+
+
+protected:
 	//AimVariables
 
 	void AimOffset(float DeltaTime);
@@ -80,7 +123,6 @@ protected:
 
 	//Highlight
 
-	
 
 private:
 	//AimPrivate Variables
@@ -101,10 +143,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class UCameraComponent* CameraComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	class URangedCombatComponent* CombatComponent;
-	
-	
+
 	//CameraHideFunction
 	void HideCamIfCharacterClose();
 
@@ -128,16 +167,11 @@ private:
 	void InitAbilityActorInfo();
 
 
-	UPROPERTY(EditAnywhere,Category = "Abilities|DefaultAbilities")
+	UPROPERTY(EditAnywhere, Category = "Abilities|DefaultAbilities")
 	TArray<TSubclassOf<UGameplayAbility>> WeaponStartupAbilities;
 
-	
-	
 public:
-
-	
 	//MC RPCS
-	
 
 
 	//GETTERS
@@ -149,6 +183,18 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurnInPlace; }
 	FORCEINLINE UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE ACombatRangedWeapon* GetCurrentWeapon() const
+	{
+		if (!CombatRangedWeaponsArray.IsEmpty() && CombatRangedWeaponsArray.IsValidIndex(ActiveWeaponIndex))
+		{
+			return CombatRangedWeaponsArray[ActiveWeaponIndex];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 
 	FVector GetHitTarget() const;

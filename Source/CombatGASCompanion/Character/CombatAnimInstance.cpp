@@ -5,6 +5,7 @@
 
 #include "CombatCharacter.h"
 #include "AnimGraphRuntime/Public/KismetAnimationLibrary.h"
+#include "CombatGASCompanion/Weapon/CombatRangedWeapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -42,10 +43,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	bWeaponEquipped = CombatCharacter->GetWeaponEquip();
 
-	/*EquippedWeapon = CombatCharacter->GetEquippedWeapon();
-
-	bAiming = CombatCharacter->IsAiming();*/
-
+	SelectedWeaponIndex = CombatCharacter->ActiveWeaponIndex;
 
 	//OFfset Yaw for Strafing
 	FRotator AimRotation = CombatCharacter->GetBaseAimRotation();
@@ -69,9 +67,9 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	AO_Pitch = CombatCharacter->GetAO_Pitch();
 	TurnInPlace = CombatCharacter->GetTurningInPlace();
 	bRotateRootBone = CombatCharacter->ShouldRotateRootBone();
-
-
-	/*if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CombatCharacter->GetMesh())
+	
+	EquippedWeapon = CombatCharacter->GetCurrentWeapon();
+	if (EquippedWeapon && bWeaponEquipped && CombatCharacter->GetMesh())
 	{
 		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
 			FName("LeftHandSocket"), RTS_World);
@@ -95,22 +93,20 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 				                                                                 CombatCharacter->GetHitTarget()));
 
 			RightHandRotation = UKismetMathLibrary::RInterpTo(RightHandRotation, LookatRotation, DeltaSeconds, 20.f);
-			//DEBUG LINES TO SEE WEaponROtation
+			/*//DEBUG LINES TO SEE WEaponROtation
 
-			/*FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
+			FTransform MuzzleTipTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(
 				FName("MuzzleFlash"), ERelativeTransformSpace::RTS_World);
-		
+
 			FVector MuzzleX(FRotationMatrix(MuzzleTipTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X));
-			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 10000,
-						  FColor::Red);
-		
-			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), CombatCharacter->GetHitTarget(), FColor::Blue);#1#
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(),
+			              MuzzleTipTransform.GetLocation() + MuzzleX * 10000,
+			              FColor::Red);
+
+			DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), CombatCharacter->GetHitTarget(), FColor::Blue);*/
 		}
-	}*/
+	}
 }
-
-
-
 
 
 ;

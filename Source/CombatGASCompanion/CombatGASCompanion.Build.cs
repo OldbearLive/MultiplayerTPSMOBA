@@ -16,7 +16,6 @@ public class CombatGASCompanion : ModuleRules
 			"UMG",
 			"EnhancedInput",
 			"Niagara",
-			/*AnimGraphRunTime Required to use UKismetAnimationLibraryFunctions */
 			"AnimGraphRuntime",
 			"GameplayAbilities"
 		});

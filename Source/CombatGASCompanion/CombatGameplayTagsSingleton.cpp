@@ -106,4 +106,11 @@ void FCombatGameplayTags::InitializeNativeGameplayTags()
 		FName("InputTag.4"),
 		FString(
 			"InputTag for 4"));
+
+	//Damage
+
+	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage"),
+		FString(
+			"Set by Called Damage"));
 }

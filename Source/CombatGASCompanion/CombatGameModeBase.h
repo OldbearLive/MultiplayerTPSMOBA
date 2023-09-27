@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "CombatGameModeBase.generated.h"
 
+
+class UCombatCharacterClassInfo;
 /**
  * 
  */
@@ -13,4 +15,8 @@ UCLASS()
 class COMBATGASCOMPANION_API ACombatGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly,Category= "Character ClassDefaults")
+	TObjectPtr<UCombatCharacterClassInfo> CharacterClassInfo;
 };

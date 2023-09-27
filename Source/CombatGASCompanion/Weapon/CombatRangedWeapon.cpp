@@ -12,28 +12,32 @@
 ACombatRangedWeapon::ACombatRangedWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	SetReplicates(true);
 	bReplicates = true;
 
 
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root);
 	//Create the Weapon Mesh in constructor and validate the pointer in the header
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Mesh"));
-	SetRootComponent(WeaponMesh);
 
+	WeaponMesh->SetupAttachment(Root);
 	WeaponMesh->SetCollisionResponseToAllChannels(ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	
 }
 
 // Called when the game starts or when spawned
 void ACombatRangedWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
+
+FVector ACombatRangedWeapon::GetCombatSocketLocation_Implementation()
+{
+	return WeaponMesh->GetSocketLocation(WeaponTipSocket);
+}
+
 
 // Called every frame
 void ACombatRangedWeapon::Tick(float DeltaTime)
@@ -45,19 +49,12 @@ void ACombatRangedWeapon::Tick(float DeltaTime)
 void ACombatRangedWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-
 }
 
-void ACombatRangedWeapon::Fire(const FVector& HitTarget)
+void ACombatRangedWeapon::Fire()
 {
-	if (FireAnimation)
+	if (WeaponPropertiesStructure.WeaponFireMontage == nullptr)return;
 	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
+		WeaponMesh->PlayAnimation(WeaponPropertiesStructure.WeaponFireMontage, false);
 	}
 }
-
-
-
-
-

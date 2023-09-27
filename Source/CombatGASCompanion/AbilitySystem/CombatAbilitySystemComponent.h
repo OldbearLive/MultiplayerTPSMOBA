@@ -22,7 +22,9 @@ public:
 	FEffectAssetTags EffectAssetTags;
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilites);
-	void AddWeaponEquipAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupWeaponEquipAbilities);
+
+	UFUNCTION(BlueprintCallable,Category="Weapon Abilities")
+	void AddWeaponEquipAbilities(const TSubclassOf<UGameplayAbility>& StartupWeaponEquipAbilities);
 
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);

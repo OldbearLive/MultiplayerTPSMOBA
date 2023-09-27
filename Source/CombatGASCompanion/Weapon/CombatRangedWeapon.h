@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SphereComponent.h"
+#include "CombatGASCompanion/Interfaces/CombatInterface.h"
 #include "GameFramework/Actor.h"
 #include "CombatRangedWeapon.generated.h"
 
 
+class UGameplayAbility;
 /*
  *WEAPON STATES ENUM
  *
@@ -26,10 +27,45 @@ enum class ERangedWeaponStates:uint8
  *WEAPON STRUCTS
  *
  */
+USTRUCT(BlueprintType)
+struct FWeaponProperties
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FText DisplayName;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsAutoFire;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsShotgun;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float FireRate;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 Ammo_Clip;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 Ammo_Stock;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UGameplayAbility> WeaponPrimary = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UGameplayAbility> WeaponSecondary = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UAnimMontage* FireMontage = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UAnimMontage* EquipMontage = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UAnimMontage* ReloadMontage = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UAnimSequence* WeaponFireMontage = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FName InventorySlot;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TSubclassOf<UAnimInstance> WeaponAnimInstance;
+};
 
 
 UCLASS()
-class COMBATGASCOMPANION_API ACombatRangedWeapon : public AActor
+class COMBATGASCOMPANION_API ACombatRangedWeapon : public AActor, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -42,14 +78,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	/*
-	 *   PICKUPWIDGET
-	*/
 
 	/*
-    *WEAPON FIRE
+    *WEAPON FIRE ANIMATION
     */
-	virtual void Fire(const FVector& HitTarget);
+	UFUNCTION(BlueprintCallable)
+	virtual void Fire();
 
 
 	/*
@@ -91,24 +125,24 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CROSSHAIRS")
 	FLinearColor CrosshairEnemyColor;
 
+	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly,Replicated, Category = "Weapon Properties")
+	FWeaponProperties WeaponPropertiesStructure;
+
 protected:
 	virtual void BeginPlay() override;
 
 
-private:
-	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	USkeletalMeshComponent* WeaponMesh;
-	
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	UAnimationAsset* FireAnimation;
+	FName WeaponTipSocket;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Weapon Properties")
+	USceneComponent* Root;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Weapon Properties")
+	USkeletalMeshComponent* WeaponMesh;
 
-	
+	FVector GetCombatSocketLocation_Implementation() override;
+
 
 public:
-	
-	
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
-	
 };

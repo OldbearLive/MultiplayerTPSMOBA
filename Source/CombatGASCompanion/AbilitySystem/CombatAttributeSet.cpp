@@ -11,23 +11,23 @@
 
 UCombatAttributeSet::UCombatAttributeSet()
 {
-	const FCombatGameplayTags& GameplayTags= FCombatGameplayTags::Get();
-	
-	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Spirit,GetSpiritAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Technique,GetTechniqueAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Toughness,GetToughnessAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_Battery,GetBatteryAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_MaxBattery,GetMaxBatteryAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Energy,GetEnergyAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Health,GetHealthAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyEfficiency,GetEnergyEfficiencyAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyPenetration,GetEnergyPenetrationAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyRegeneration	,GetEnergyRegenerationAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_HealthRegeneration,GetHealthRegenerationAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxEnergy,GetMaxEnergyAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth,GetMaxHealthAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadChance,GetOverloadChanceAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadDamage,GetOverloadDamageAttribute);
+	const FCombatGameplayTags& GameplayTags = FCombatGameplayTags::Get();
+
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Spirit, GetSpiritAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Technique, GetTechniqueAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Toughness, GetToughnessAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_Battery, GetBatteryAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_MaxBattery, GetMaxBatteryAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Energy, GetEnergyAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Health, GetHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyEfficiency, GetEnergyEfficiencyAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyPenetration, GetEnergyPenetrationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyRegeneration, GetEnergyRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_HealthRegeneration, GetHealthRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxEnergy, GetMaxEnergyAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadChance, GetOverloadChanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadDamage, GetOverloadDamageAttribute);
 }
 
 void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -35,24 +35,24 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	//VitalAttribute
-	
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Energy, COND_None, REPNOTIFY_Always);
-	
+
 
 	//BatteryAttribute
-	
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Battery, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxBattery, COND_None, REPNOTIFY_Always);
 
 	//PrimaryAttribute
-	
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Spirit, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Toughness, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, Technique, COND_None, REPNOTIFY_Always);
 
 	//SecondaryAttributes
-	
+
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, MaxEnergy, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyEfficiency, COND_None, REPNOTIFY_Always);
@@ -61,9 +61,6 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, OverloadDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyRegeneration, COND_None, REPNOTIFY_Always);
-
-
-	
 }
 
 void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -81,12 +78,14 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxEnergy());
 	}
 }
+
 void UCombatAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props)
 {
-	Props.EffectContextHandle  = Data.EffectSpec.GetContext();
+	Props.EffectContextHandle = Data.EffectSpec.GetContext();
 	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
-	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->AvatarActor.
+	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->
+		AvatarActor.
 		IsValid())
 	{
 		Props.SourceAvatarActor = Props.SourceASC->AbilityActorInfo->AvatarActor.Get();
@@ -106,7 +105,7 @@ void UCombatAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackDa
 	}
 
 	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.
-															IsValid())
+	                                                   IsValid())
 	{
 		Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
 		Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
@@ -124,13 +123,29 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
-	if(Data.EvaluatedData.Attribute== GetHealthAttribute())
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
-		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
+		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s,Health :%f"), *Props.TargetAvatarActor->GetName(),
+		       GetHealth());
 	}
-	if(Data.EvaluatedData.Attribute== GetEnergyAttribute())
+	if (Data.EvaluatedData.Attribute == GetEnergyAttribute())
 	{
-		SetEnergy(FMath::Clamp(GetEnergy(),0.f,GetMaxEnergy()));
+		SetEnergy(FMath::Clamp(GetEnergy(), 0.f, GetMaxEnergy()));
+	}
+
+	//SET INCOMING DAMAGE ATTRIBUTE ON SERVER AND USE IT TO PERFORM DAMAGE CALCULATION
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		SetIncomingDamage(0.f);
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = GetHealth() - LocalIncomingDamage;
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+			
+			const bool bFatal = NewHealth <= 0.f;
+		}
 	}
 }
 
@@ -144,6 +159,7 @@ void UCombatAttributeSet::OnRep_Energy(const FGameplayAttributeData OldEnergy) c
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Energy, OldEnergy);
 }
+
 // Vital Attributes Section End
 
 
@@ -157,6 +173,7 @@ void UCombatAttributeSet::OnRep_MaxBattery(const FGameplayAttributeData OldMaxBa
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, MaxBattery, OldMaxBattery);
 }
+
 // Battery Attributes Section End
 
 
@@ -175,6 +192,7 @@ void UCombatAttributeSet::OnRep_Spirit(const FGameplayAttributeData OldSpirit) c
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, Spirit, OldSpirit);
 }
+
 // Primary Attributes Section End
 
 
@@ -218,4 +236,5 @@ void UCombatAttributeSet::OnRep_EnergyRegeneration(const FGameplayAttributeData 
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, EnergyPenetration, OldEnergyRegeneration);
 }
+
 // Secondary Attributes Section End

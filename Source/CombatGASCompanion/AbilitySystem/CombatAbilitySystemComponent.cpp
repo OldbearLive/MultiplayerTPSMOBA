@@ -5,6 +5,7 @@
 
 #include "Abilities/CombatGameplayAbility.h"
 #include "CombatGASCompanion/CombatGameplayTagsSingleton.h"
+#include "CombatGASCompanion/Interfaces/CombatInterface.h"
 
 void UCombatAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -25,15 +26,19 @@ void UCombatAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclass
 }
 
 void UCombatAbilitySystemComponent::AddWeaponEquipAbilities(
-	const TArray<TSubclassOf<UGameplayAbility>>& StartupWeaponEquipAbilities)
+	const TSubclassOf<UGameplayAbility>& StartupWeaponEquipAbilities)
 {
-	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupWeaponEquipAbilities)
+	int32 LocalLevel = 1;
+	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetAvatarActor());
+	if (CombatInterface)
 	{
-		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
-		if (const UCombatGameplayAbility* CombatAbility = Cast<UCombatGameplayAbility>(GameplayAbilitySpec.Ability))
-		{
-			GiveAbility(GameplayAbilitySpec);
-		}
+		LocalLevel = CombatInterface->GetPlayerLevel();
+	}
+	FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(StartupWeaponEquipAbilities, LocalLevel);
+	if (const UCombatGameplayAbility* CombatAbility = Cast<UCombatGameplayAbility>(GameplayAbilitySpec.Ability))
+	{
+		GameplayAbilitySpec.DynamicAbilityTags.AddTag(CombatAbility->StartupInputTag);
+		GiveAbility(GameplayAbilitySpec);
 	}
 }
 
@@ -68,8 +73,9 @@ void UCombatAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& 
 }
 
 void UCombatAbilitySystemComponent::ClientEffectsApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
-                                                   const FGameplayEffectSpec& EffectSpec,
-                                                   FActiveGameplayEffectHandle ActiveGameplayEffectHandle)
+                                                                        const FGameplayEffectSpec& EffectSpec,
+                                                                        FActiveGameplayEffectHandle
+                                                                        ActiveGameplayEffectHandle)
 {
 	FGameplayTagContainer TagContainer;
 	EffectSpec.GetAllAssetTags(TagContainer);

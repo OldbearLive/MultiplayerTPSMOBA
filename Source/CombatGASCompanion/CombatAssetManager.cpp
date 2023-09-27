@@ -3,6 +3,7 @@
 
 #include "CombatAssetManager.h"
 
+#include "AbilitySystemGlobals.h"
 #include "CombatGameplayTagsSingleton.h"
 
 UCombatAssetManager& UCombatAssetManager::Get()
@@ -16,6 +17,9 @@ UCombatAssetManager& UCombatAssetManager::Get()
 void UCombatAssetManager::StartInitialLoading()
 {
 	Super::StartInitialLoading();
-
+	
 	FCombatGameplayTags::InitializeNativeGameplayTags();
+
+	//REQUIRED TO USE TARGET DATA IN PROJECT
+	UAbilitySystemGlobals::Get().InitGlobalData();
 }

@@ -8,9 +8,11 @@
 
 #include "CombatGASCompanion/CombatGASCompanion.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
-#include "CombatGASCompanion/CombatComponents/RangedCombatComponent.h"
+#include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
+#include "CombatGASCompanion/HUD/CombatHUD.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerState.h"
+
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -32,14 +34,18 @@ ACombatCharacter::ACombatCharacter()
 	CameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
+
+	RemoteStatsBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Multiplayer State Widget"));
+	RemoteStatsBar->SetupAttachment(GetRootComponent());
+	RemoteStatsBar->SetVisibility(false);
+
+
+
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
-
-	CombatComponent = CreateDefaultSubobject<URangedCombatComponent>(TEXT("CombatComponent"));
-	CombatComponent->SetIsReplicated(true);
 
 	TurnInPlace = ETurningInPlace::ETIP_NotTurning;
 
@@ -53,9 +59,7 @@ void ACombatCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ACombatCharacter,bIsWeaponEquipped,COND_None);
-
-	
+	DOREPLIFETIME_CONDITION(ACombatCharacter, bIsWeaponEquipped, COND_None);
 }
 
 void ACombatCharacter::PossessedBy(AController* NewController)
@@ -110,18 +114,52 @@ void ACombatCharacter::InitAbilityActorInfo()
 		}
 	}
 	InitializeDefaultAttributes();
-	UCombatAbilitySystemComponent*CombatAbilitySystemComponent =Cast<UCombatAbilitySystemComponent>(AbilitySystemComponent);
-	CombatAbilitySystemComponent->AddWeaponEquipAbilities(WeaponStartupAbilities);
+	UCombatAbilitySystemComponent* CombatAbilitySystemComponent = Cast<UCombatAbilitySystemComponent>(
+		AbilitySystemComponent);
+	if (UCombatAttributeSet* CombatAttributeSet = Cast<UCombatAttributeSet>(AttributeSet))
+	{
+		//Lambdas to bind to Delegates
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetHealthAttribute()).
+		                        AddLambda(
+			                        [this](const FOnAttributeChangeData& Data)
+			                        {
+				                        OnHealthChangedSignature.Broadcast(Data.NewValue);
+			                        }
+		                        );
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetMaxHealthAttribute()).
+		                        AddLambda(
+			                        [this](const FOnAttributeChangeData& Data)
+			                        {
+				                        OnMaxHealthChangedSignature.Broadcast(Data.NewValue);
+			                        }
+		                        );
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetEnergyAttribute()).
+		                        AddLambda(
+			                        [this](const FOnAttributeChangeData& Data)
+			                        {
+				                        OnEnergyChangedSignature.Broadcast(Data.NewValue);
+			                        }
+		                        );
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(CombatAttributeSet->GetMaxEnergyAttribute()).
+		                        AddLambda(
+			                        [this](const FOnAttributeChangeData& Data)
+			                        {
+				                        OnMaxEnergyChangedSignature.Broadcast(Data.NewValue);
+			                        }
+		                        );
+		OnHealthChangedSignature.Broadcast(CombatAttributeSet->GetHealth());
+		OnMaxHealthChangedSignature.Broadcast(CombatAttributeSet->GetMaxHealth());
+		OnEnergyChangedSignature.Broadcast(CombatAttributeSet->GetEnergy());
+		OnMaxEnergyChangedSignature.Broadcast(CombatAttributeSet->GetMaxEnergy());
+	}
 }
 
 void ACombatCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	if (CombatComponent)
-	{
-		CombatComponent->Character = this;
-	}
 }
 
 // Called every frame
@@ -160,12 +198,14 @@ void ACombatCharacter::Jump()
 
 void ACombatCharacter::HighLightActor()
 {
+	RemoteStatsBar->SetVisibility(true);
 	GetMesh()->SetRenderCustomDepth(true);
 	GetMesh()->SetCustomDepthStencilValue(1);
 }
 
 void ACombatCharacter::UnHighLightActor()
 {
+	RemoteStatsBar->SetVisibility(false);
 	GetMesh()->SetRenderCustomDepth(false);
 }
 
@@ -187,26 +227,19 @@ float ACombatCharacter::CalculateSpeed()
 }
 
 
-
-
-
 FVector ACombatCharacter::GetHitTarget() const
 {
-	if (CombatComponent == nullptr)
+	const ACombatPlayerController* PlayerController = Cast<ACombatPlayerController>(GetController());
+	if (!PlayerController)
 	{
 		return FVector();
 	}
-	return CombatComponent->HitTarget;
+	return PlayerController->HitTarget;
 }
 
 
 void ACombatCharacter::AimOffset(float DeltaTime)
 {
-	if (CombatComponent == nullptr)
-	{
-		return;
-	}
-
 	float Speed = CalculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
@@ -239,8 +272,6 @@ void ACombatCharacter::AimOffset(float DeltaTime)
 
 void ACombatCharacter::SimProxiesTurn()
 {
-	if (CombatComponent == nullptr)return;
-
 	bRotateRootBone = false;
 
 	float Speed = CalculateSpeed();

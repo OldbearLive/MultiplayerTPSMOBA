@@ -68,7 +68,24 @@ public:
 
 	TMap<FGameplayTag,TStaticFunctionPtr<FGameplayAttribute()>> TagsToAttributes;
 	
-	
+	/*
+    	*Primary Attributes
+    	*/
+    
+    	// Determines your ability to equip certain weapons and items and Deals with energy related actions
+    	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Technique, Category = "Primary Attributes")
+    	FGameplayAttributeData Technique;
+    	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Technique);
+    
+    	// The Sheer Force of Will. Increases and decreases Health Regeneration and Critical Chance. is a Dynamic Force 
+    	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Spirit, Category = "Primary Attributes")
+    	FGameplayAttributeData Spirit;
+    	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Spirit);
+    
+    	// Your Toughness Determines how much Health and Damage you do in melee combat.
+    	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Toughness, Category = "Primary Attributes")
+    	FGameplayAttributeData Toughness;
+    	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Toughness);
 
 	/*
 	*Secondary Attributes
@@ -128,24 +145,7 @@ public:
 	FGameplayAttributeData MaxBattery;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxBattery);
 	
-	/*
-	*Primary Attributes
-	*/
-
-	// Determines your ability to equip certain weapons and items and Deals with energy related actions
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Technique, Category = "Primary Attributes")
-	FGameplayAttributeData Technique;
-	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Technique);
-
-	// The Sheer Force of Will. Increases and decreases Health Regeneration and Critical Chance. is a Dynamic Force 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Spirit, Category = "Primary Attributes")
-	FGameplayAttributeData Spirit;
-	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Spirit);
-
-	// Your Toughness Determines how much Health and Damage you do in melee combat.
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Toughness, Category = "Primary Attributes")
-	FGameplayAttributeData Toughness;
-	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Toughness);
+	
 
 	/*
 	*Vital Attributes
@@ -157,6 +157,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Energy, Category = "Vital Attributes")
 	FGameplayAttributeData Energy;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Energy);
+
+	/*
+	 *Meta Attributes
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet,IncomingDamage);
+
+	
 
 	
 

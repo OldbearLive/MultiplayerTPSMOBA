@@ -21,8 +21,16 @@ void ACombatPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	FHitResult HitResult;
-	TraceUnderCrosshairs(HitResult);
+	if (IsLocalPlayerController())
+	{
+		TraceUnderCrosshairs(HitResult);
+
+		if (HitResult.bBlockingHit)
+		{
+			HitTarget = HitResult.ImpactPoint;
+		}
+		HitTarget = HitResult.TraceEnd;
+	}
 }
 
 void ACombatPlayerController::BeginPlay()
@@ -63,6 +71,7 @@ void ACombatPlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ACombatPlayerController::FFirePressed);
 	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ACombatPlayerController::FFireReleased);*/
 }
+
 
 void ACombatPlayerController::Move(const FInputActionValue& InputActionValue)
 {
@@ -112,14 +121,14 @@ void ACombatPlayerController::AbilityInputTagsPressed(FGameplayTag InputTag)
 
 void ACombatPlayerController::AbilityInputTagsReleased(FGameplayTag InputTag)
 {
-	if(GetCombatASC()==nullptr)return;
+	if (GetCombatASC() == nullptr)return;
 	GetCombatASC()->AbilityInputTagReleased(InputTag);
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Blue, *InputTag.ToString());
 }
 
 void ACombatPlayerController::AbilityInputTagsHeld(FGameplayTag InputTag)
 {
-	if(GetCombatASC()==nullptr)return;
+	if (GetCombatASC() == nullptr)return;
 	GetCombatASC()->AbilityInputTagHeld(InputTag);
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Yellow, *InputTag.ToString());
 }
@@ -150,19 +159,22 @@ void ACombatPlayerController::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 			if (ControlledPawn)
 			{
 				float DistanceToCharacter = (ControlledPawn->GetActorLocation() - Start).Size();
-				Start += CrosshairWorldDirection * (DistanceToCharacter + 75.f);
+				Start += CrosshairWorldDirection * (DistanceToCharacter);
 				//ShowDebugSphereForCrosshairTraceStart
 
-				DrawDebugSphere(GetWorld(), Start, 12.f, 12, FColor::Red);
+				DrawDebugSphere(GetWorld(), Start, 2, 12, FColor::Green);
 			}
 
-			FVector End = Start + (CrosshairWorldDirection * TRACE_LENGTH);
+			FVector End = Start + (CrosshairWorldDirection * TraceLength);
 
 			GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Yellow);
 
-			if (!TraceHitResult.bBlockingHit)return;
-
-			
+			DrawDebugSphere(GetWorld(), End, 5, 12, FColor::Red);
+			if (TraceHitResult.bBlockingHit)
+			{
+				DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 5, 12, FColor::Red);
+			}
 			LastActor = ThisActor;
 
 			ThisActor = Cast<IInteractWithCrosshairsInterface>(TraceHitResult.GetActor());

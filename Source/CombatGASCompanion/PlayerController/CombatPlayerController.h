@@ -8,7 +8,6 @@
 #include "CombatPlayerController.generated.h"
 
 
-
 class UCombatInputConfig;
 class UInputMappingContext;
 class UInputAction;
@@ -17,7 +16,7 @@ class IInteractWithCrosshairsInterface;
 class UCombatAbilitySystemComponent;
 
 
-#define TRACE_LENGTH  80000.f
+#define TRACE_LENGTH  50000.f
 /**
  * 
  */
@@ -27,55 +26,59 @@ class COMBATGASCOMPANION_API ACombatPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-
 	ACombatPlayerController();
 
 	virtual void PlayerTick(float DeltaTime) override;
 
-protected:
+	FVector HitTarget;
 
+	FHitResult HitResult;
+
+	UPROPERTY(EditAnywhere, Category = "Trace")
+	float TraceLength = 2000;
+
+protected:
 	virtual void BeginPlay() override;
 
 	virtual void SetupInputComponent() override;
 
-	
-
 private:
-
 	//InputMappingContext -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputMappingContext>CombatContext;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputMappingContext> CombatContext;
+
+	
 
 	/*
 	 *
 	 **INPUTACTIONS SECTION
 	 * 
 	 */
-	
+
 	//InputActions  Move -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputAction>MoveAction;
-	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> MoveAction;
+
 	//InputMappingContext Look -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputAction>LookAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> LookAction;
 
 	//InputMappingContext Jump -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputAction>JumpAction;
-	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> JumpAction;
+
 	//InputMappingContext Equip -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputAction>EquipAction;
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> EquipAction;
 
 	//InputMappingContext Aim -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputAction>AimAction;
-	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> AimAction;
+
 	//InputMappingContext Fire -> Set in BP
-	UPROPERTY(EditAnywhere,Category = "Input")
-	TObjectPtr<UInputAction>FireAction;
-	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> FireAction;
+
 	/*
 	 *
 	 **InputActionFunctions SECTION
@@ -90,12 +93,12 @@ private:
 
 	//ABILITY INPUT ACTIONS
 
-	UPROPERTY(EditDefaultsOnly,Category="Input")
-	TObjectPtr<UCombatAbilitySystemComponent>CombatAbilitySystemComponent;
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UCombatAbilitySystemComponent> CombatAbilitySystemComponent;
 
-	UCombatAbilitySystemComponent*GetCombatASC();
-	
-	UPROPERTY(EditDefaultsOnly,Category="Input")
+	UCombatAbilitySystemComponent* GetCombatASC();
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UCombatInputConfig> InputConfig;
 
 	void AbilityInputTagsPressed(FGameplayTag InputTag);
@@ -104,16 +107,18 @@ private:
 
 	//
 	//
+	//HUD Crosshairs
+	//
+	//
+
+	//
+	//
 	//Tracing on Crosshair position
 	//
 	//
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
-	
-	TObjectPtr<IInteractWithCrosshairsInterface>  LastActor;
+
+
+	TObjectPtr<IInteractWithCrosshairsInterface> LastActor;
 	TObjectPtr<IInteractWithCrosshairsInterface> ThisActor;
-	
-
 };
-
-
-
