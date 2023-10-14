@@ -28,4 +28,22 @@ public:
 
 	UFUNCTION(BlueprintCallable,Category = "CharacterClassDefaults")
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject,ECharacterClass CharacterClass, float Level,UAbilitySystemComponent* ASC);
+
+	
+	UFUNCTION(BlueprintCallable,Category = "CharacterClassDefaults")
+	static  void GiveStartupAbilities(const UObject* WorldContext,UAbilitySystemComponent* AbilitySystemComponent);
+
+	UFUNCTION(BlueprintPure,Category = "GameplayEffects")
+	static  bool IsShieldHit(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure,Category = "GameplayEffects")
+	static  bool IsOverloadHit(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintCallable,Category = "GameplayEffects")
+	static void SetIsShieldHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,bool bInShieldHit);
+
+	UFUNCTION(BlueprintCallable,Category = "GameplayEffects")
+	static void SetIsOverloadHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,bool bInOverloadHit);
+	
+	
 };

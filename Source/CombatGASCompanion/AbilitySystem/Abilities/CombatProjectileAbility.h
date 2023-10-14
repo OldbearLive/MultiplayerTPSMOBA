@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CombatGameplayAbility.h"
+#include "CombatDamageGameplayAbility.h"
 #include "CombatProjectileAbility.generated.h"
 
 class ACombatProjectile;
@@ -11,7 +11,7 @@ class ACombatProjectile;
  * 
  */
 UCLASS()
-class COMBATGASCOMPANION_API UCombatProjectileAbility : public UCombatGameplayAbility
+class COMBATGASCOMPANION_API UCombatProjectileAbility : public UCombatDamageGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -31,9 +31,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ACombatProjectile> ProjectileClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FScalableFloat AbilityDamage;
+	
 };
+
+

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbility.h"
 #include "Engine/DataAsset.h"
 #include "CombatCharacterClassInfo.generated.h"
 
@@ -43,8 +44,10 @@ public:
 	TSubclassOf<UGameplayEffect> SecondaryAttributes;
 
 	UPROPERTY(EditDefaultsOnly,Category="Common Class Defaults")
-	TSubclassOf<UGameplayEffect> VItalAttributes;
+	TSubclassOf<UGameplayEffect> VitalAttributes;
 
+	UPROPERTY(EditDefaultsOnly,Category="Common Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
 
 	UFUNCTION()
 	FCharacterClassInfo GetClassDefaultsInfo(ECharacterClass CharacterClass);

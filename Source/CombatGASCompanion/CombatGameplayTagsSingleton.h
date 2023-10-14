@@ -52,8 +52,20 @@ public:
 
  //DAMAGE
 
- FGameplayTag Damage;
+ FGameplayTag HitReact;
+ FGameplayTag Death;
  
+ //DAMAGETYPES
+
+ FGameplayTag Damage;
+ FGameplayTag Damage_PhysicalDamage;
+ FGameplayTag Damage_EnergyDamage;
+
+ //DAMAGE RESISTANCES
+ FGameplayTag  Attrributes_Resistance_Physical;
+ FGameplayTag  Attrributes_Resistance_Energy;
+
+ TMap<FGameplayTag,FGameplayTag>DamageTypesToResistances;
  
  
 

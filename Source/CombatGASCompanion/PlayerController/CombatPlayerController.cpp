@@ -9,8 +9,11 @@
 #include "GameplayTagContainer.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/Input/CombatEnhancedInputComponent.h"
+#include "CombatGASCompanion/Interfaces/CombatInterface.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
+#include "CombatGASCompanion/UI/DamageTextComponent.h"
 #include "Kismet/GameplayStatics.h"
+
 
 ACombatPlayerController::ACombatPlayerController()
 {
@@ -30,6 +33,39 @@ void ACombatPlayerController::PlayerTick(float DeltaTime)
 			HitTarget = HitResult.ImpactPoint;
 		}
 		HitTarget = HitResult.TraceEnd;
+	}
+}
+
+void ACombatPlayerController::CreateDamageWidget(float DamageAmount, bool bIsShieldHit,
+                                                 bool IsOverloadHit, UDamageTextComponent* DamageText,
+                                                 const FVector inWorldPos)
+{
+	DamageText->RegisterComponent();
+	DamageText->SetWorldLocation(inWorldPos);
+	DamageText->SetDamageText(DamageAmount, bIsShieldHit, IsOverloadHit);
+}
+
+void ACombatPlayerController::ShowDamageNumber_Implementation(float DamageAmount, AActor* TargetActor,
+                                                              bool bIsShieldHit,
+                                                              bool IsOverloadHit)
+{
+	if (IsValid(TargetActor))
+	{
+		if (DamageTextComponentClass)
+		{
+			UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetActor, DamageTextComponentClass);
+			CreateDamageWidget(DamageAmount, bIsShieldHit, IsOverloadHit, DamageText, HitTarget);
+		}
+		if (StatusTextComponentClass)
+		{
+			UDamageTextComponent* StatusText = NewObject<UDamageTextComponent>(TargetActor, StatusTextComponentClass);
+			ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetActor);
+			if (CombatInterface)
+			{
+				FVector StatusTextLocation = CombatInterface->Execute_GetStatusWidgetLocation(TargetActor);
+				CreateDamageWidget(DamageAmount, bIsShieldHit, IsOverloadHit, StatusText, StatusTextLocation);
+			}
+		}
 	}
 }
 

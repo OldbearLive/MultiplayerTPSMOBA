@@ -23,10 +23,11 @@ class COMBATGASCOMPANION_API AEnemyPawnBase : public APawn, public IAbilitySyste
 public:
 	AEnemyPawnBase();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	class UCapsuleComponent* CapsuleComponent;
 
-	UPROPERTY(EditAnywhere)
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	USkeletalMeshComponent* SkeletalMeshComponent;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;

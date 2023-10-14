@@ -36,15 +36,15 @@ struct FWeaponProperties
 	FText DisplayName;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool bIsAutoFire;
+	bool bIsAutoFire = false;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	bool bIsShotgun;
+	bool bIsShotgun = false;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float FireRate;
+	float FireRate = 1.f;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int32 Ammo_Clip;
+	int32 Ammo_Clip = 10;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int32 Ammo_Stock;
+	int32 Ammo_Stock= 100;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TSubclassOf<UGameplayAbility> WeaponPrimary = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

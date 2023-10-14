@@ -4,8 +4,10 @@
 #include "CombatAttributeSet.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "CombatBlueprintFunctionLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "CombatGASCompanion/CombatGameplayTagsSingleton.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
@@ -28,6 +30,8 @@ UCombatAttributeSet::UCombatAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadChance, GetOverloadChanceAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_OverloadDamage, GetOverloadDamageAttribute);
+	TagsToAttributes.Add(GameplayTags.Attrributes_Resistance_Energy, GetEnergyResistanceAttribute);
+	TagsToAttributes.Add(GameplayTags.Attrributes_Resistance_Physical, GetPhysicalResistanceAttribute);
 }
 
 void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -61,6 +65,12 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, OverloadDamage, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyRegeneration, COND_None, REPNOTIFY_Always);
+
+	//Resistance Attributes
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyResistance, COND_None, REPNOTIFY_Always);
+
+	
 }
 
 void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -72,7 +82,7 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
-
+ 
 	if (Attribute == GetEnergyAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxEnergy());
@@ -114,6 +124,7 @@ void UCombatAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackDa
 	}
 }
 
+
 void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -126,12 +137,13 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-		UE_LOG(LogTemp, Warning, TEXT("Changed Health on %s,Health :%f"), *Props.TargetAvatarActor->GetName(),
-		       GetHealth());
 	}
 	if (Data.EvaluatedData.Attribute == GetEnergyAttribute())
 	{
 		SetEnergy(FMath::Clamp(GetEnergy(), 0.f, GetMaxEnergy()));
+		ShowFloatingText(Props, Data.EvaluatedData.Magnitude,
+		                 UCombatBlueprintFunctionLibrary::IsShieldHit(Props.EffectContextHandle),
+		                 UCombatBlueprintFunctionLibrary::IsOverloadHit(Props.EffectContextHandle));
 	}
 
 	//SET INCOMING DAMAGE ATTRIBUTE ON SERVER AND USE IT TO PERFORM DAMAGE CALCULATION
@@ -143,11 +155,43 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 		{
 			const float NewHealth = GetHealth() - LocalIncomingDamage;
 			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
-			
+
 			const bool bFatal = NewHealth <= 0.f;
+			if (bFatal)
+			{
+				if (!Props.TargetASC->HasMatchingGameplayTag(FCombatGameplayTags::Get().Death))
+				{
+					FGameplayTagContainer TagContainer;
+					TagContainer.AddTag(FCombatGameplayTags::Get().Death);
+					Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+				}
+			}
+			else
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FCombatGameplayTags::Get().HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+			if (Props.SourceAvatarActor != Props.TargetAvatarActor)
+			{
+				const bool bShield = UCombatBlueprintFunctionLibrary::IsShieldHit(Props.EffectContextHandle);
+				const bool bOverload = UCombatBlueprintFunctionLibrary::IsOverloadHit(Props.EffectContextHandle);
+				ShowFloatingText(Props, LocalIncomingDamage, bShield, bOverload);
+			}
 		}
 	}
 }
+
+void UCombatAttributeSet::ShowFloatingText(const FEffectProperties& Properties, float Damage, bool bIsShieldHit,
+                                           bool IsOverloadHit) const
+{
+	ACombatPlayerController* LocalPlayerController = Cast<ACombatPlayerController>(Properties.SourceController);
+	if (LocalPlayerController)
+	{
+		LocalPlayerController->ShowDamageNumber(Damage, Properties.TargetAvatarActor,bIsShieldHit,IsOverloadHit);
+	}
+}
+
 
 // Vital Attributes Section Start
 void UCombatAttributeSet::OnRep_Health(const FGameplayAttributeData OldHealth) const
@@ -235,6 +279,16 @@ void UCombatAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData 
 void UCombatAttributeSet::OnRep_EnergyRegeneration(const FGameplayAttributeData OldEnergyRegeneration) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, EnergyPenetration, OldEnergyRegeneration);
+}
+
+void UCombatAttributeSet::OnRep_EnergyResistance(const FGameplayAttributeData OldEnergyResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, EnergyResistance, OldEnergyResistance);
+}
+
+void UCombatAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData OldPhysicalResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCombatAttributeSet, PhysicalResistance, OldPhysicalResistance);
 }
 
 // Secondary Attributes Section End

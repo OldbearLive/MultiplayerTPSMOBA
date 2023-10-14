@@ -131,6 +131,17 @@ public:
 	FGameplayAttributeData EnergyRegeneration;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, EnergyRegeneration);
 
+	/*
+	*Resistance Attributes
+	*/
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_EnergyResistance, Category = "Resistance Attributes")
+	FGameplayAttributeData EnergyResistance;
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, EnergyResistance);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_PhysicalResistance, Category = "Resistance Attributes")
+	FGameplayAttributeData PhysicalResistance;
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, PhysicalResistance);
 	
 
 	
@@ -158,6 +169,8 @@ public:
 	FGameplayAttributeData Energy;
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Energy);
 
+
+	
 	/*
 	 *Meta Attributes
 	 */
@@ -244,9 +257,18 @@ private:
 
 	UFUNCTION()
 	void OnRep_EnergyRegeneration(const FGameplayAttributeData OldEnergyRegeneration) const;
-	
+
+	UFUNCTION()
+	void OnRep_EnergyResistance(const FGameplayAttributeData OldEnergyResistance) const;
+
+	UFUNCTION()
+	void OnRep_PhysicalResistance(const FGameplayAttributeData OldPhysicalResistance) const;
 
 private:
 
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data,  FEffectProperties& Props);
+
+public:
+	
+	void ShowFloatingText(const FEffectProperties& Properties,float Damage,bool bIsShieldHit,bool IsOverloadHit) const;
 };

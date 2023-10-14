@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
 #include "GameplayTagContainer.h"
 #include "CombatPlayerController.generated.h"
 
 
+class UDamageTextComponent;
 class UCombatInputConfig;
 class UInputMappingContext;
 class UInputAction;
@@ -29,6 +31,8 @@ public:
 	ACombatPlayerController();
 
 	virtual void PlayerTick(float DeltaTime) override;
+	void CreateDamageWidget(float DamageAmount, bool bIsShieldHit, bool IsOverloadHit,
+	                        UDamageTextComponent* DamageText, const FVector inWorldPos );
 
 	FVector HitTarget;
 
@@ -36,6 +40,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Trace")
 	float TraceLength = 2000;
+
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(float DamageAmount, AActor* TargetActor, bool bIsShieldHit,
+	                      bool IsOverloadHit);
 
 protected:
 	virtual void BeginPlay() override;
@@ -47,7 +55,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CombatContext;
 
-	
 
 	/*
 	 *
@@ -117,6 +124,11 @@ private:
 	//
 	//
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UDamageTextComponent> StatusTextComponentClass;
 
 
 	TObjectPtr<IInteractWithCrosshairsInterface> LastActor;

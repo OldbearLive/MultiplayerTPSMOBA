@@ -107,10 +107,51 @@ void FCombatGameplayTags::InitializeNativeGameplayTags()
 		FString(
 			"InputTag for 4"));
 
-	//Damage
+	//HIT REACT AND DEATH ABILITY
 
+
+	GameplayTags.HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.HitReact"),
+		FString(
+			"HitReact"));
+
+	GameplayTags.Death = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.DeathEvent"),
+		FString(
+			"DeathTag"));
+
+	//DAMAGE TYPES
+	
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Damage"),
+		FName("Damage.Magnitude"),
 		FString(
 			"Set by Called Damage"));
+
+	GameplayTags.Damage_PhysicalDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+			FName("Damage.Physical"),
+			FString(
+				"Physical Damage Property"));
+
+	GameplayTags.Damage_EnergyDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Energy"),
+		FString(
+			"Energy Damage Property"));
+
+	//DAMAGE RESISTANCES
+
+	GameplayTags.Attrributes_Resistance_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attrributes.Resistance.Physical"),
+		FString(
+			"Physical Resistance"));
+	GameplayTags.Attrributes_Resistance_Energy = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attrributes.Resistance.Energy"),
+		FString(
+			"Energy Resistance"));
+
+	//MAP OF DAMAGETYPES TO RESISTANCES
+
+	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_PhysicalDamage,GameplayTags.Attrributes_Resistance_Physical);
+	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_EnergyDamage,GameplayTags.Attrributes_Resistance_Energy);
+
+	
 }

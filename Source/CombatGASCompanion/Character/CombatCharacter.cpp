@@ -40,7 +40,6 @@ ACombatCharacter::ACombatCharacter()
 	RemoteStatsBar->SetVisibility(false);
 
 
-
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
@@ -60,6 +59,12 @@ void ACombatCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ACombatCharacter, bIsWeaponEquipped, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, CombatRangedWeaponsArray, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, ActiveWeaponIndex, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, AmmoClipArray, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, MaxAmmoClipArray, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, ReserveAmmoArray, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, MaxReserveAmmoArray, COND_None);
 }
 
 void ACombatCharacter::PossessedBy(AController* NewController)
@@ -113,9 +118,10 @@ void ACombatCharacter::InitAbilityActorInfo()
 			CombatHUD->InitOverlay(CombatPlayerController, CombatPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
+
 	InitializeDefaultAttributes();
-	UCombatAbilitySystemComponent* CombatAbilitySystemComponent = Cast<UCombatAbilitySystemComponent>(
-		AbilitySystemComponent);
+
+
 	if (UCombatAttributeSet* CombatAttributeSet = Cast<UCombatAttributeSet>(AttributeSet))
 	{
 		//Lambdas to bind to Delegates
