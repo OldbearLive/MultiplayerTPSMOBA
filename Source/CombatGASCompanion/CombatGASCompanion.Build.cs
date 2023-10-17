@@ -22,7 +22,9 @@ public class CombatGASCompanion : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new[] { 
 			"GameplayTasks",
-			"GameplayTags"});
+			"GameplayTags",
+			"AIModule"
+		});
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

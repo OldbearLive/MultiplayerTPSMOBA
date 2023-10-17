@@ -3,10 +3,13 @@
 
 #include "MinionCharacter.h"
 
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "CombatGASCompanion/CombatGameplayTagsSingleton.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
 #include "CombatGASCompanion/AbilitySystem/CombatBlueprintFunctionLibrary.h"
+#include "CombatGASCompanion/AI/CombatAIController.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
@@ -26,6 +29,17 @@ AMinionCharacter::AMinionCharacter()
 
 	PawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>("PawnMovementComponent");
 	PawnMovement->MaxSpeed = DefaultMaxSpeed;
+}
+
+void AMinionCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	CombatAIController = Cast<ACombatAIController>(NewController);
+	if (!HasAuthority()) return;
+
+	CombatAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	CombatAIController->RunBehaviorTree(BehaviorTree);
 }
 
 

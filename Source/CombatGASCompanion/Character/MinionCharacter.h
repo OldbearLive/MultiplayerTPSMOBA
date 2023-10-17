@@ -11,6 +11,8 @@
 
 class UFloatingPawnMovement;
 class UWidgetComponent;
+class UBehaviorTree;
+class ACombatAIController;
 /**
  * 
  */
@@ -21,6 +23,8 @@ class COMBATGASCOMPANION_API AMinionCharacter : public AEnemyPawnBase, public II
 
 public:
 	AMinionCharacter();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 
 	// Crosshair Interface Functions
@@ -66,6 +70,14 @@ protected:
 
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 TagCount);
 	void DeathTagChanged(const FGameplayTag CallbackTag, int32 TagCount);
+
+	//Behaviour TreeSection
+
+	UPROPERTY(EditAnywhere,Category = "AI")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+	
+	UPROPERTY()
+	TObjectPtr<ACombatAIController> CombatAIController;
 
 private:
 	//HEALTH AND ENERGY DELEGATES
