@@ -51,9 +51,16 @@ protected:
 	//END FUNCTION SECTION
 
 	//START VARIABLE SECTION
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly,Category= "Effect Damage")
+	TMap<FGameplayTag,FScalableFloat>DamageTypes;
+
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "Applied Effects")
-	bool bDestroyOnEffectRemoval = false;
+	bool bDestroyOnEffectApplication = false;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category= "Applied Effects")
+	bool bApplyEffectToEnemies = false;
 	
 	//END VARIABLE SECTION
 

@@ -7,7 +7,6 @@
 #include "AbilitySystemComponent.h"
 
 
-
 // Sets default values
 ACombatEffectActor::ACombatEffectActor()
 {
@@ -25,6 +24,8 @@ void ACombatEffectActor::BeginPlay()
 
 void ACombatEffectActor::OnOverlap(AActor* TargetActor)
 {
+	const bool bIsEnemy = TargetActor->ActorHasTag(FName("Enemy"));
+	if (bIsEnemy && !bApplyEffectToEnemies)return;
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
 	{
 		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
@@ -42,6 +43,8 @@ void ACombatEffectActor::OnOverlap(AActor* TargetActor)
 
 void ACombatEffectActor::OnEndOverlap(AActor* TargetActor)
 {
+	const bool bIsEnemy = TargetActor->ActorHasTag(FName("Enemy"));
+	if (bIsEnemy && !bApplyEffectToEnemies)return;
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
 	{
 		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
@@ -63,13 +66,13 @@ void ACombatEffectActor::OnEndOverlap(AActor* TargetActor)
 		TArray<FActiveGameplayEffectHandle> HandlesToRemove;
 		for (TTuple<FActiveGameplayEffectHandle, UAbilitySystemComponent*> HandlePairs : ActiveEffectHandles)
 		{
-			if(TargetASC ==HandlePairs.Value)
+			if (TargetASC == HandlePairs.Value)
 			{
-				TargetASC->RemoveActiveGameplayEffect(HandlePairs.Key,1);
+				TargetASC->RemoveActiveGameplayEffect(HandlePairs.Key, 1);
 				HandlesToRemove.Add(HandlePairs.Key);
 			}
 		}
-		for(auto Handles:HandlesToRemove)
+		for (auto Handles : HandlesToRemove)
 		{
 			ActiveEffectHandles.FindAndRemoveChecked(Handles);
 		}
@@ -78,16 +81,27 @@ void ACombatEffectActor::OnEndOverlap(AActor* TargetActor)
 
 void ACombatEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
+	const bool bIsEnemy = TargetActor->ActorHasTag(FName("Enemy"));
+	if (bIsEnemy && !bApplyEffectToEnemies)return;
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 
 	if (TargetASC == nullptr)return;
 
 	if (GameplayEffectClass)
 	{
+
+		
+
 		FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext();
 		EffectContextHandle.AddSourceObject(this);
 		const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(
 			GameplayEffectClass, 1.f, EffectContextHandle);
+		for (auto& Pair : DamageTypes)
+		{
+			const float ScaledDamage = Pair.Value.GetValueAtLevel(EffectContextHandle.GetAbilityLevel());
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(EffectSpecHandle, Pair.Key, ScaledDamage);
+		}
+		
 		FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(
 			*EffectSpecHandle.Data.Get());
 
@@ -97,6 +111,12 @@ void ACombatEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UG
 		if (bIsInfinite && InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
 		{
 			ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
+		}
+		if(bDestroyOnEffectApplication&&EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy ==
+		EGameplayEffectDurationType::Instant&&EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy ==
+		EGameplayEffectDurationType::HasDuration)
+		{
+			Destroy();
 		}
 	}
 }

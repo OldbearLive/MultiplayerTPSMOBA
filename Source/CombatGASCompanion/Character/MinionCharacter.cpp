@@ -6,12 +6,14 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CombatGASCompanion/CombatGameplayTagsSingleton.h"
+#include "CombatGASCompanion/CombatGASCompanion.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
 #include "CombatGASCompanion/AbilitySystem/CombatBlueprintFunctionLibrary.h"
 #include "CombatGASCompanion/AI/CombatAIController.h"
 #include "Components/WidgetComponent.h"
-#include "GameFramework/FloatingPawnMovement.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 AMinionCharacter::AMinionCharacter()
 {
@@ -27,19 +29,24 @@ AMinionCharacter::AMinionCharacter()
 	RemoteStatsBar->SetupAttachment(GetRootComponent());
 	RemoteStatsBar->SetVisibility(false);
 
-	PawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>("PawnMovementComponent");
-	PawnMovement->MaxSpeed = DefaultMaxSpeed;
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 }
 
 void AMinionCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	CombatAIController = Cast<ACombatAIController>(NewController);
 	if (!HasAuthority()) return;
+	CombatAIController = Cast<ACombatAIController>(NewController);
 
 	CombatAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 	CombatAIController->RunBehaviorTree(BehaviorTree);
+	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+
+	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),
+	                                                             CharacterClass != ECharacterClass::Biped);
 }
 
 
@@ -77,12 +84,6 @@ void AMinionCharacter::InitializeDefaultAttributes() const
 void AMinionCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if (HasAuthority())
-	{
-		const FVector Gravity = FVector(0.f, 0.f, -0.8f);
-		PawnMovement->AddInputVector(Gravity);
-	}
 }
 
 void AMinionCharacter::HighLightActor()
@@ -103,10 +104,6 @@ int32 AMinionCharacter::GetPlayerLevel()
 	return Level;
 }
 
-UPawnMovementComponent* AMinionCharacter::GetMovementComponent() const
-{
-	return PawnMovement;
-}
 
 void AMinionCharacter::InitAbilityActorInfo()
 {
@@ -161,7 +158,8 @@ void AMinionCharacter::InitAbilityActorInfo()
 void AMinionCharacter::HitReactTagChanged(const FGameplayTag CallbackTag, int32 TagCount)
 {
 	bHitReacting = TagCount > 0;
-	PawnMovement->MaxSpeed = bHitReacting ? StaggerSpeed : DefaultMaxSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? StaggerSpeed : DefaultMaxSpeed;
+	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
 
 void AMinionCharacter::DeathTagChanged(const FGameplayTag CallbackTag, int32 TagCount)

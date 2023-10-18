@@ -13,7 +13,12 @@ class UGameplayEffect;
 UENUM(BlueprintType)
 enum class ECharacterClass:uint8
 {
-	BasicMinion
+	Walker,
+	Biped,
+	Humanoid,
+	Tank,
+	Sniper,
+	SuperRobot
 };
 
 USTRUCT(BlueprintType)

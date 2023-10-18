@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "CombatGASCompanion/Interfaces/CombatInterface.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/PawnMovementComponent.h"
 #include "EnemyPawnBase.generated.h"
 
 class UGameplayAbility;
@@ -15,20 +15,15 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 
 UCLASS()
-class COMBATGASCOMPANION_API AEnemyPawnBase : public APawn, public IAbilitySystemInterface, public ICombatInterface
+class COMBATGASCOMPANION_API AEnemyPawnBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 
 	// Sets default values for this pawn's properties
 public:
 	AEnemyPawnBase();
-
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	class UCapsuleComponent* CapsuleComponent;
-
 	
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	USkeletalMeshComponent* SkeletalMeshComponent;
+	
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
@@ -62,6 +57,4 @@ private:
 
 public:
 	
-	FORCEINLINE
-	USkeletalMeshComponent* GetMesh() const { return SkeletalMeshComponent; }
 };
