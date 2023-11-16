@@ -21,5 +21,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag,FScalableFloat>DamageTypes;
-	
+
+
+	UFUNCTION(BlueprintCallable)
+	void CauseDamage(AActor* TargetActor);
 };

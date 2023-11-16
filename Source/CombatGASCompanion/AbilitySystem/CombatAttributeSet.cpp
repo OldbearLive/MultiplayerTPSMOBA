@@ -7,6 +7,7 @@
 #include "CombatBlueprintFunctionLibrary.h"
 #include "GameplayEffectExtension.h"
 #include "CombatGASCompanion/CombatGameplayTagsSingleton.h"
+#include "CombatGASCompanion/Interfaces/CombatInterface.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
@@ -69,8 +70,6 @@ void UCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	//Resistance Attributes
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, PhysicalResistance, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UCombatAttributeSet, EnergyResistance, COND_None, REPNOTIFY_Always);
-
-	
 }
 
 void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -82,7 +81,7 @@ void UCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	}
- 
+
 	if (Attribute == GetEnergyAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxEnergy());
@@ -159,11 +158,16 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 			const bool bFatal = NewHealth <= 0.f;
 			if (bFatal)
 			{
+				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetCharacter);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
 				if (!Props.TargetASC->HasMatchingGameplayTag(FCombatGameplayTags::Get().Death))
 				{
 					FGameplayTagContainer TagContainer;
 					TagContainer.AddTag(FCombatGameplayTags::Get().Death);
-					Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+					//Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 				}
 			}
 			else
@@ -188,7 +192,14 @@ void UCombatAttributeSet::ShowFloatingText(const FEffectProperties& Properties, 
 	ACombatPlayerController* LocalPlayerController = Cast<ACombatPlayerController>(Properties.SourceController);
 	if (LocalPlayerController)
 	{
-		LocalPlayerController->ShowDamageNumber(Damage, Properties.TargetAvatarActor,bIsShieldHit,IsOverloadHit);
+		LocalPlayerController->ShowDamageNumber(Damage, Properties.TargetAvatarActor, bIsShieldHit, IsOverloadHit);
+		return;
+	}
+
+	ACombatPlayerController* EnemyPlayerController = Cast<ACombatPlayerController>(Properties.TargetController);
+	if (EnemyPlayerController)
+	{
+		EnemyPlayerController->ShowDamageNumber(Damage, Properties.TargetAvatarActor, bIsShieldHit, IsOverloadHit);
 	}
 }
 

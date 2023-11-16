@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
+#include "CombatCharacterMovementComponent.h"
 #include "CombatGASCompanion/CombatTypes/TurnInPlace.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
 #include "CombatGASCompanion/UI/OverlayWidgetController.h"
@@ -15,14 +16,20 @@
 class ACombatRangedWeapon;
 class ACombatPlayerController;
 
+
 UCLASS()
 class COMBATGASCOMPANION_API ACombatCharacter : public ABaseCharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
-public:
+
 	// Sets default values for this character's properties
-	ACombatCharacter();
+
+public:
+	ACombatCharacter(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Movement")
+	UCombatCharacterMovementComponent* CombatCharacterMovementComponent;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -82,36 +89,41 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
 	TArray<int32> MaxReserveAmmoArray;
 
+
+	UPROPERTY(EditDefaultsOnly, Category= "Combat")
+	float DefaultMaxSpeed = 600;
+	UPROPERTY(EditDefaultsOnly, Category= "Combat")
+	float StaggerSpeed = 100;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
-	
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 TagCount);
+	void DeathTagChanged(const FGameplayTag CallbackTag, int32 TagCount);
+
+
 	//
 	//REMOTE STATSBAR FOR PLAYER
 	//
-protected:
-	
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> RemoteStatsBar;
-public:
 
-	
-	
-	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName InSocketNameCam = FName("NAME_None");
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "GAS|UI|Attributes")
 	FOnAttributeChangedSignature OnHealthChangedSignature;
 
-	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+	UPROPERTY(BlueprintAssignable, Category = "GAS|UI|Attributes")
 	FOnAttributeChangedSignature OnMaxHealthChangedSignature;
-	
-	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|UI|Attributes")
 	FOnAttributeChangedSignature OnEnergyChangedSignature;
-	
-	UPROPERTY(BlueprintAssignable,Category = "GAS|UI|Attributes")
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|UI|Attributes")
 	FOnAttributeChangedSignature OnMaxEnergyChangedSignature;
-
-
 
 protected:
 	//AimVariables

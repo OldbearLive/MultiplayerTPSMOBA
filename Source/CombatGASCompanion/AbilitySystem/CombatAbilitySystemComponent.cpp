@@ -48,7 +48,7 @@ void UCombatAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& Inpu
 
 	for (auto& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag)) 
 		{
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
@@ -56,6 +56,7 @@ void UCombatAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& Inpu
 				TryActivateAbility(AbilitySpec.Handle);
 			}
 		}
+		
 	}
 }
 

@@ -148,6 +148,13 @@ void FCombatGameplayTags::InitializeNativeGameplayTags()
 		FString(
 			"Energy Resistance"));
 
+	//Ability Tags
+
+	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Attack"),
+		FString(
+			"Attack Ability Tag"));
+
 	//MAP OF DAMAGETYPES TO RESISTANCES
 
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_PhysicalDamage,GameplayTags.Attrributes_Resistance_Physical);

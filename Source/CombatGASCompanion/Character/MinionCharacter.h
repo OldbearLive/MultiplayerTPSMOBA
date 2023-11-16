@@ -34,7 +34,19 @@ public:
 
 	// Combat Interface Functions
 	virtual int32 GetPlayerLevel() override;
+	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
+	virtual AActor* GetCombatTarget_Implementation() const override;
+
+	virtual void Die() override;
+
+	virtual void MulticastHandleDeath() override;
+	
+	virtual bool IsDead_Implementation() const override;
+
+	virtual AActor* GetAvatar_Implementation() override;
 	// End Combat Interface Functions
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Combat")
+	TArray<FTaggedMontage> AttackMontages;
 
 	
 	UPROPERTY(BlueprintReadOnly, Category= "Combat")
@@ -45,6 +57,9 @@ public:
 	float DefaultMaxSpeed = 1500;
 	UPROPERTY(EditDefaultsOnly, Category= "Combat")
 	float StaggerSpeed = 1500;
+
+	UPROPERTY(BlueprintReadWrite,Category = "Combat")
+	TObjectPtr<AActor> CombatTarget;
 
 protected:
 	virtual void BeginPlay() override;

@@ -28,6 +28,11 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+	virtual void Die() override;
+
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void MulticastHandleDeath();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -48,6 +53,8 @@ protected:
 	void ApplyEffectSpecToSelf(TSubclassOf<UGameplayEffect> GameplayEffect, float Level) const;
 
 	void AddCharacterAbilities();
+
+	
 
 protected:
 	// Called to bind functionality to input

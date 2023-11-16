@@ -11,6 +11,7 @@
 #include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
 #include "CombatGASCompanion/AbilitySystem/CombatBlueprintFunctionLibrary.h"
 #include "CombatGASCompanion/AI/CombatAIController.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -46,7 +47,8 @@ void AMinionCharacter::PossessedBy(AController* NewController)
 	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
 
 	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),
-	                                                             CharacterClass != ECharacterClass::Biped);
+	                                                             CharacterClass == ECharacterClass::Biped
+	                                                             /*Add all the ranged Character classes here*/);
 }
 
 
@@ -58,7 +60,7 @@ void AMinionCharacter::BeginPlay()
 
 	if (HasAuthority())
 	{
-		UCombatBlueprintFunctionLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+		UCombatBlueprintFunctionLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);
 	}
 
 
@@ -102,6 +104,43 @@ void AMinionCharacter::UnHighLightActor()
 int32 AMinionCharacter::GetPlayerLevel()
 {
 	return Level;
+}
+
+void AMinionCharacter::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* AMinionCharacter::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
+}
+
+void AMinionCharacter::Die()
+{
+	SetLifeSpan(10);
+	if (CombatAIController && CombatAIController->GetBlackboardComponent())
+	{
+		CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsDead"), true);
+	}
+	Super::Die();
+}
+
+void AMinionCharacter::MulticastHandleDeath()
+{
+	Super::MulticastHandleDeath();
+
+}
+
+
+bool AMinionCharacter::IsDead_Implementation() const
+{
+	return bDead;
+}
+
+AActor* AMinionCharacter::GetAvatar_Implementation()
+{
+	return this;
 }
 
 
@@ -159,11 +198,17 @@ void AMinionCharacter::HitReactTagChanged(const FGameplayTag CallbackTag, int32 
 {
 	bHitReacting = TagCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? StaggerSpeed : DefaultMaxSpeed;
-	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	if (CombatAIController && CombatAIController->GetBlackboardComponent())
+	{
+		CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	}
 }
 
 void AMinionCharacter::DeathTagChanged(const FGameplayTag CallbackTag, int32 TagCount)
 {
 	bDead = TagCount > 0;
-	SetLifeSpan(10);
+	if (CombatAIController && CombatAIController->GetBlackboardComponent())
+	{
+		CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("IsDead"), bDead);
+	}
 }

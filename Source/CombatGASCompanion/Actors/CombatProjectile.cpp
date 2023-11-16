@@ -5,10 +5,15 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "CombatGASCompanion/AbilitySystem/CombatBlueprintFunctionLibrary.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GeometryCollection/GeometryCollectionSimulationTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Tasks/Task.h"
+#include "Tasks/Task.h"
 
 // Sets default values
 ACombatProjectile::ACombatProjectile()
@@ -33,6 +38,15 @@ void ACombatProjectile::OnOverlap(AActor* TargetActor)
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation(),
 	                                               GetActorRotation());
 
+	if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() ==TargetActor)
+	{
+		return;
+	}
+	
+	if (!UCombatBlueprintFunctionLibrary::IsNotFriend(DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser(),TargetActor))
+	{
+		return;
+	}
 	if (HasAuthority())
 	{
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
@@ -40,8 +54,8 @@ void ACombatProjectile::OnOverlap(AActor* TargetActor)
 		{
 			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data.Get());
 		}
-		
-		Destroy();
+		//BoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//Destroy();
 	}
 	else
 	{

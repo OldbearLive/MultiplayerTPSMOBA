@@ -66,6 +66,13 @@ public:
  FGameplayTag  Attrributes_Resistance_Energy;
 
  TMap<FGameplayTag,FGameplayTag>DamageTypesToResistances;
+
+ //ABILITY TAGS
+
+ FGameplayTag Abilities_Attack;
+
+
+ 
  
  
 

@@ -203,7 +203,9 @@ void ACombatPlayerController::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 			FVector End = Start + (CrosshairWorldDirection * TraceLength);
 
-			GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility);
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(ControlledPawn);
+			GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECC_Visibility,Params);
 			DrawDebugLine(GetWorld(), Start, End, FColor::Yellow);
 
 			DrawDebugSphere(GetWorld(), End, 5, 12, FColor::Red);
@@ -212,6 +214,7 @@ void ACombatPlayerController::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 				DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 5, 12, FColor::Red);
 			}
 			LastActor = ThisActor;
+
 
 			ThisActor = Cast<IInteractWithCrosshairsInterface>(TraceHitResult.GetActor());
 

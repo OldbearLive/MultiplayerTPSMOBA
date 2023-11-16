@@ -20,16 +20,14 @@ public:
 	ACombatProjectile();
 
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<UBoxComponent> BoxComponent;
 
-	UPROPERTY(BlueprintReadWrite,meta =(ExposeOnSpawn = true))
+	UPROPERTY(BlueprintReadWrite, meta =(ExposeOnSpawn = true))
 	FGameplayEffectSpecHandle DamageEffectSpecHandle;
-	
-
 
 protected:
 	virtual void BeginPlay() override;
@@ -39,12 +37,12 @@ protected:
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UNiagaraSystem> ImpactEffect;
-
+	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> ImpactSound;
 
 	bool bHit = false;
-	
+
 	UFUNCTION(BlueprintCallable)
 	void OnOverlap(AActor* TargetActor);
 };

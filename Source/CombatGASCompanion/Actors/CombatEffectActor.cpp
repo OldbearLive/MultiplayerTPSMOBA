@@ -113,7 +113,7 @@ void ACombatEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UG
 			ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
 		}
 		if(bDestroyOnEffectApplication&&EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy ==
-		EGameplayEffectDurationType::Instant&&EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy ==
+		EGameplayEffectDurationType::Instant||EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy ==
 		EGameplayEffectDurationType::HasDuration)
 		{
 			Destroy();

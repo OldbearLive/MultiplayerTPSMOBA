@@ -20,13 +20,17 @@
 
 
 // Sets default values
-ACombatCharacter::ACombatCharacter()
+ACombatCharacter::ACombatCharacter(const FObjectInitializer& ObjectInitializer): Super(
+	ObjectInitializer.SetDefaultSubobjectClass<UCombatCharacterMovementComponent>(
+		ACharacter::CharacterMovementComponentName))
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CombatCharacterMovementComponent = Cast<UCombatCharacterMovementComponent>(GetCharacterMovement());
+
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
-	CameraBoom->SetupAttachment(GetMesh());
+	CameraBoom->SetupAttachment(GetMesh(), InSocketNameCam);
 	CameraBoom->TargetArmLength = 600.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
@@ -45,6 +49,7 @@ ACombatCharacter::ACombatCharacter()
 
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 
 	TurnInPlace = ETurningInPlace::ETIP_NotTurning;
 
@@ -194,6 +199,17 @@ void ACombatCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ACombatCharacter::HitReactTagChanged(const FGameplayTag CallbackTag, int32 TagCount)
+{
+	bHitReacting = TagCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? StaggerSpeed : DefaultMaxSpeed;
+}
+
+void ACombatCharacter::DeathTagChanged(const FGameplayTag CallbackTag, int32 TagCount)
+{
+	bDead = TagCount > 0;
+	SetLifeSpan(10);
+}
 
 void ACombatCharacter::Jump()
 {

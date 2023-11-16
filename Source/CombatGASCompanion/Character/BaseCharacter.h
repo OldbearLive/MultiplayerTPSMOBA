@@ -21,12 +21,23 @@ class COMBATGASCOMPANION_API ABaseCharacter : public ACharacter, public IAbility
 
 public:
 	// Sets default values for this character's properties
-	ABaseCharacter();
+	ABaseCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
-	
+
+	virtual bool IsDead_Implementation() const override;
+
+	virtual AActor* GetAvatar_Implementation() override;
+
+	virtual void Die() override;
+
+	UFUNCTION(NetMulticast,Reliable)
+	virtual void MulticastHandleDeath();
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TArray<FTaggedMontage> AttackMontages;
 
 protected:
 	// Called when the game starts or when spawned
@@ -57,6 +68,11 @@ protected:
 	void ApplyEffectSpecToSelf(TSubclassOf<UGameplayEffect> GameplayEffect, float Level) const;
 
 	void AddCharacterAbilities();
+
+	UPROPERTY(BlueprintReadOnly, Category= "Combat")
+	bool bHitReacting = false;
+	UPROPERTY(BlueprintReadOnly, Category= "Combat")
+	bool bDead = false;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities|DefaultAbilities")
