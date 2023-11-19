@@ -144,16 +144,18 @@ void UCombatDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomEx
 
 	float EnergyDamage = 0.f;
 	const bool bIsShieldHit = Energy > 0;
-	UCombatBlueprintFunctionLibrary::SetIsShieldHit(LocalEffectContextHandle, bIsShieldHit);
 	if (bIsShieldHit)
 	{
+		UCombatBlueprintFunctionLibrary::SetIsShieldHit(LocalEffectContextHandle, bIsShieldHit);
 		//IsEnergyDamage
 		Damage = FMath::Max(1, Damage - TargetEnergyEfficiency);
 		EnergyDamage = Damage;
+		FGameplayModifierEvaluatedData EvaluatedData(UCombatAttributeSet::GetIncomingDamageAttribute(),
+		                                             EGameplayModOp::Additive, Damage);
 		FGameplayModifierEvaluatedData EnergyData(GetCombatDamageStatics().EnergyProperty,
 		                                          EGameplayModOp::Additive, -EnergyDamage);
 		//Execute Damage on Target's Energy
-		OutExecutionOutput.AddOutputModifier(EnergyData);
+		OutExecutionOutput.AddOutputModifier(EvaluatedData);
 		//Execute Remaining Health Damage if Shield hit 0 with the delta amount
 		if ((Energy - Damage) < 0.f)
 		{

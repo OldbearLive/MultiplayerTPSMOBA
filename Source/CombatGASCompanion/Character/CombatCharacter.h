@@ -189,6 +189,8 @@ public:
 
 	//GETTERS
 
+	FCollisionQueryParams GetIgnoreCharacterParams() const;
+
 
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE bool GetWeaponEquip() { return bIsWeaponEquipped; }

@@ -168,6 +168,19 @@ void ACombatCharacter::InitAbilityActorInfo()
 	}
 }
 
+FCollisionQueryParams ACombatCharacter::GetIgnoreCharacterParams() const
+{
+	FCollisionQueryParams Params;
+
+	TArray<AActor*> CharacterChildActors;
+	GetAllChildActors(CharacterChildActors);
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActors(CharacterChildActors);
+
+	return Params;
+}
+
+
 void ACombatCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();

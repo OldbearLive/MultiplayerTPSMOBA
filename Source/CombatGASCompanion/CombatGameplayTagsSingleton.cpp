@@ -106,6 +106,14 @@ void FCombatGameplayTags::InitializeNativeGameplayTags()
 		FName("InputTag.4"),
 		FString(
 			"InputTag for 4"));
+	GameplayTags.InputTag_Jump = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Jump"),
+		FString(
+			"InputTag for Jump"));
+	GameplayTags.InputTag_Sprint = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Sprint"),
+		FString(
+			"InputTag for Sprint"));
 
 	//HIT REACT AND DEATH ABILITY
 

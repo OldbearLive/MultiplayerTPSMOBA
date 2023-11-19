@@ -38,6 +38,8 @@ void ACombatProjectile::OnOverlap(AActor* TargetActor)
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation(),
 	                                               GetActorRotation());
 
+	
+
 	if (!DamageEffectSpecHandle.Data.IsValid() || DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() ==TargetActor)
 	{
 		return;

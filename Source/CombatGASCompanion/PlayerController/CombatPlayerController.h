@@ -9,6 +9,7 @@
 #include "CombatPlayerController.generated.h"
 
 
+class ACombatCharacter;
 class UDamageTextComponent;
 class UCombatInputConfig;
 class UInputMappingContext;
@@ -50,7 +51,12 @@ protected:
 
 	virtual void SetupInputComponent() override;
 
+	virtual void OnPossess(APawn* InPawn) override;
+
 private:
+
+	ACombatCharacter* CombatCharacter;
+	
 	//InputMappingContext -> Set in BP
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CombatContext;
@@ -70,7 +76,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> LookAction;
 
-	//InputMappingContext Jump -> Set in BP
+	/*//InputMappingContext Jump -> Set in BP
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction;
 
@@ -84,7 +90,7 @@ private:
 
 	//InputMappingContext Fire -> Set in BP
 	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> FireAction;
+	TObjectPtr<UInputAction> FireAction;*/
 
 	/*
 	 *

@@ -37,7 +37,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	//Direction = UKismetAnimationLibrary::CalculateDirection(Velocity,CombatCharacter->GetActorRotation());
 
-	bIsInAir = CombatCharacter->GetCharacterMovement()->IsFalling();
+	bIsInAir = CombatCharacter->CombatCharacterMovementComponent->IsFalling()||CombatCharacter->CombatCharacterMovementComponent->IsCustomMovementMode(CMOVE_JET);
 
 	bIsAccelerating = CombatCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 

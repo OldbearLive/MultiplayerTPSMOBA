@@ -10,7 +10,7 @@ UENUM(BlueprintType)
 enum ECustomMovementMode
 {
 	CMOVE_NONE UMETA(Hidden),
-	CMOVE_GLIDE UMETA(DisplayName = "Slide"),
+	CMOVE_JET UMETA(DisplayName = "Jet"),
 	CMOVE_MAX UMETA(Hidden),
 };
 
@@ -23,20 +23,26 @@ UCLASS()
 class COMBATGASCOMPANION_API UCombatCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-
+#pragma region Saved Move_ NetworkPredictionData Classes
 	//CUSTOM SAVED MOVE TO SYNC Member Variables and Bitflags
 	class FSavedMove_Combat : public FSavedMove_Character
 	{
 		typedef FSavedMove_Character Super;
 
-		uint8 Saved_bWantsToSprint:1;
+		//FLAG
+		uint8 Saved_bWantsToSprint : 1;
+
+		uint8 Saved_bWantsToJetPack : 1;
+
+	public:
+		FSavedMove_Combat();
 
 		virtual bool
 		CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* InCharacter, float MaxDelta) const override;
 		virtual void Clear() override;
 		virtual uint8 GetCompressedFlags() const override;
 		virtual void SetMoveFor(ACharacter* C, float InDeltaTime, FVector const& NewAccel,
-								FNetworkPredictionData_Client_Character& ClientData) override;
+		                        FNetworkPredictionData_Client_Character& ClientData) override;
 		virtual void PrepMoveFor(ACharacter* C) override;
 	};
 
@@ -49,29 +55,50 @@ class COMBATGASCOMPANION_API UCombatCharacterMovementComponent : public UCharact
 		typedef FNetworkPredictionData_Client_Character Super;
 		virtual FSavedMovePtr AllocateNewMove() override;
 	};
-
+#pragma endregion
 
 public:
 	UCombatCharacterMovementComponent();
 
-	//PARAMETERS
+#pragma region BP Parameters
+	//SPRINT
 	UPROPERTY(EditDefaultsOnly)
 	float Sprint_MaxWalkSpeed;
 	UPROPERTY(EditDefaultsOnly)
 	float Walk_MaxWalkSpeed;
 
-	//Transient
-	//
-	//
-	//CUSTOMSPRINT
+	//JETPACK
+	UPROPERTY(BlueprintReadWrite)
+	float JetPack_Thrust = 1000.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float JetPack_Impulse = 5000.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float JetPack_Gravity = 5000.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float JetPack_Friction = 1.5f;
+	UPROPERTY(BlueprintReadWrite)
+	float JetPack_BrakingDeceleration = 512.0f;
+
+	UPROPERTY(BlueprintReadWrite)
+	float MaxJetAltitude = 3000.0f;
+
+
+#pragma endregion
+
+#pragma region Transient
 	bool Safe_bWantsToSprint;
-	//
-	//CHARACTERREF
+
+	bool Safe_bWantsToJetPack;
+
 	UPROPERTY(Transient)
 	ACombatCharacter* CombatOwnerCharacter;
-	//
-	//
-	//End Transient
+#pragma endregion
+
+
+	virtual bool IsMovingOnGround() const override;
 
 #pragma region Networking
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
@@ -80,17 +107,49 @@ public:
 protected:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 
+
 	virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
 
 	virtual void InitializeComponent() override;
 
+	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
+
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+
+
+#pragma region Sprinting BP Functions
+	//BLueprintExposed Functions
 public:
 	UFUNCTION(BlueprintCallable)
 	void SprintPressed();
 	UFUNCTION(BlueprintCallable)
 	void SprintReleased();
+#pragma endregion
+#pragma region JetPacking BP Functions_Variables
+	//BLueprintExposed Functions
+public:
+	UPROPERTY(BlueprintReadWrite)
+	bool bThrust;
+	UFUNCTION(BlueprintCallable)
+	void JetPressed();
+	UFUNCTION(BlueprintCallable)
+	void JetReleased();
+#pragma endregion
 
 	UFUNCTION(BlueprintCallable)
 	bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode);
+
+private:
+#pragma region JetPack c++ Funtions
+
+	void EnterJet();
+	void ExitJet();
+	void PhysJet(float DeltaTime, int32 Iterations);
+	bool GetJetSurface(FHitResult& Hit);
+
+#pragma endregion
 };
 
+
+#pragma region Networking
+#pragma endregion

@@ -140,47 +140,69 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 	if (Data.EvaluatedData.Attribute == GetEnergyAttribute())
 	{
 		SetEnergy(FMath::Clamp(GetEnergy(), 0.f, GetMaxEnergy()));
-		ShowFloatingText(Props, Data.EvaluatedData.Magnitude,
+		/*ShowFloatingText(Props, Data.EvaluatedData.Magnitude,
 		                 UCombatBlueprintFunctionLibrary::IsShieldHit(Props.EffectContextHandle),
-		                 UCombatBlueprintFunctionLibrary::IsOverloadHit(Props.EffectContextHandle));
+		                 UCombatBlueprintFunctionLibrary::IsOverloadHit(Props.EffectContextHandle));*/
 	}
 
 	//SET INCOMING DAMAGE ATTRIBUTE ON SERVER AND USE IT TO PERFORM DAMAGE CALCULATION
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f);
-		if (LocalIncomingDamage > 0.f)
+		if (Props.SourceAvatarActor != Props.TargetAvatarActor)
 		{
-			const float NewHealth = GetHealth() - LocalIncomingDamage;
-			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+			const bool bShield = UCombatBlueprintFunctionLibrary::IsShieldHit(Props.EffectContextHandle);
+			const bool bOverload = UCombatBlueprintFunctionLibrary::IsOverloadHit(Props.EffectContextHandle);
 
-			const bool bFatal = NewHealth <= 0.f;
-			if (bFatal)
+			float LocalIncomingDamage = GetIncomingDamage();
+			SetIncomingDamage(0.f);
+			if (LocalIncomingDamage > 0.f)
 			{
-				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetCharacter);
-				if (CombatInterface)
+				if (bShield)
 				{
-					CombatInterface->Die();
+					const float NewEnergy = GetEnergy() - LocalIncomingDamage;
+
+					//IF New Energy is < 0 that means the delta Has to be applied to the health even if the shield was hit. Could Implement Shield Break mechanism here.
+					//DAMAGE OVERFLOW INTO HEALTH
+					if (NewEnergy < 0.f)
+					{
+						LocalIncomingDamage = FMath::Abs(NewEnergy);
+						const float NewHealth = GetHealth() - LocalIncomingDamage;
+						SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+					}
+					SetEnergy(FMath::Clamp(NewEnergy, 0.f, GetMaxEnergy()));
+					ShowFloatingText(Props, LocalIncomingDamage, bShield, bOverload);
+
+					LocalIncomingDamage = 0.f;
 				}
-				if (!Props.TargetASC->HasMatchingGameplayTag(FCombatGameplayTags::Get().Death))
+				//
+				const float NewHealth = GetHealth() - LocalIncomingDamage;
+				SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+				/*Incase it was a Shieldhit, You are still setting health, But you are resetting Local Damage
+				to 0 on Shield Hit Condition, The Overflow to health is handled there as well so No need */
+				if (LocalIncomingDamage > 0.f)
+				{
+					const bool bFatal = NewHealth <= 0.f;
+					if (bFatal)
+					{
+						ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetCharacter);
+						if (CombatInterface)
+						{
+							CombatInterface->Die();
+						}
+					}
+					FGameplayTagContainer TagContainer;
+					TagContainer.AddTag(FCombatGameplayTags::Get().HitReact);
+					Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+				}
+
+				ShowFloatingText(Props, LocalIncomingDamage, bShield, bOverload);
+
+				/*if (!Props.TargetASC->HasMatchingGameplayTag(FCombatGameplayTags::Get().Death))
 				{
 					FGameplayTagContainer TagContainer;
 					TagContainer.AddTag(FCombatGameplayTags::Get().Death);
 					//Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-				}
-			}
-			else
-			{
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FCombatGameplayTags::Get().HitReact);
-				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
-			}
-			if (Props.SourceAvatarActor != Props.TargetAvatarActor)
-			{
-				const bool bShield = UCombatBlueprintFunctionLibrary::IsShieldHit(Props.EffectContextHandle);
-				const bool bOverload = UCombatBlueprintFunctionLibrary::IsOverloadHit(Props.EffectContextHandle);
-				ShowFloatingText(Props, LocalIncomingDamage, bShield, bOverload);
+				}*/
 			}
 		}
 	}

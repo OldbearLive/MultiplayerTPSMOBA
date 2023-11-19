@@ -27,6 +27,7 @@ public:
 	void AddWeaponEquipAbilities(const TSubclassOf<UGameplayAbility>& StartupWeaponEquipAbilities);
 
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagPressed(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	
 protected:
