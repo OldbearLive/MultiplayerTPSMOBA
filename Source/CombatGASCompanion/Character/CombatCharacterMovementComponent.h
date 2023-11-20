@@ -68,21 +68,24 @@ public:
 	float Walk_MaxWalkSpeed;
 
 	//JETPACK
-	UPROPERTY(BlueprintReadWrite)
-	float JetPack_Thrust = 1000.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float JetPack_MaxSpeed = 1000.f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float JetPack_Impulse = 5000.f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float JetPack_Gravity = 5000.f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float JetThrustUpCoeff = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float JetPack_Friction = 1.5f;
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float JetPack_BrakingDeceleration = 512.0f;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxJetAltitude = 3000.0f;
 
 
@@ -109,7 +112,7 @@ protected:
 
 
 	virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
-
+	
 	virtual void InitializeComponent() override;
 
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
@@ -129,7 +132,7 @@ public:
 	//BLueprintExposed Functions
 public:
 	UPROPERTY(BlueprintReadWrite)
-	bool bThrust;
+	bool bThrust = false;
 	UFUNCTION(BlueprintCallable)
 	void JetPressed();
 	UFUNCTION(BlueprintCallable)

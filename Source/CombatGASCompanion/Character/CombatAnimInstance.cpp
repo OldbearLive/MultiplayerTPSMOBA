@@ -39,7 +39,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	bIsInAir = CombatCharacter->CombatCharacterMovementComponent->IsFalling()||CombatCharacter->CombatCharacterMovementComponent->IsCustomMovementMode(CMOVE_JET);
 
-	bIsAccelerating = CombatCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+	bIsAccelerating = CombatCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size2D() > 0.f ? true : false;
 
 	bWeaponEquipped = CombatCharacter->GetWeaponEquip();
 

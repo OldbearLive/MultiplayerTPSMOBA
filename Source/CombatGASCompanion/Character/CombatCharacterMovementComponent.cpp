@@ -25,6 +25,7 @@ bool UCombatCharacterMovementComponent::FSavedMove_Combat::CanCombineWith(const 
 	{
 		return false;
 	}
+
 	return FSavedMove_Character::CanCombineWith(NewMove, InCharacter, MaxDelta);
 }
 
@@ -69,7 +70,7 @@ void UCombatCharacterMovementComponent::FSavedMove_Combat::SetMoveFor(ACharacter
 		C->GetCharacterMovement());
 
 	Saved_bWantsToSprint = CharacterMovementComponent->Safe_bWantsToSprint;
-	Saved_bWantsToJetPack = CharacterMovementComponent->Safe_bWantsToSprint;
+	Saved_bWantsToJetPack = CharacterMovementComponent->Safe_bWantsToJetPack;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -154,7 +155,9 @@ bool UCombatCharacterMovementComponent::IsMovingOnGround() const
 
 void UCombatCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
-	if (Safe_bWantsToJetPack)
+	
+	
+	if (!IsCustomMovementMode(CMOVE_JET) && Safe_bWantsToJetPack)
 	{
 		EnterJet();
 	}
@@ -185,14 +188,17 @@ void UCombatCharacterMovementComponent::EnterJet()
 {
 	Safe_bWantsToJetPack = true;
 
-	if (Acceleration.Size2D() < 0.1)
+	FHitResult SurfaceHit;
+	
+	if (Acceleration.Size2D() < 0.1 && GetJetSurface(SurfaceHit))
 	{
-		Velocity = UpdatedComponent->GetUpVector() * JetPack_Impulse; //JetInitial Impulse on No Accel
+		Velocity = FVector::UpVector * JetPack_Impulse; //JetInitial Impulse on No Accel
+		SetMovementMode(MOVE_Custom, CMOVE_JET);
+		return;
 	}
-	else
-	{
-		Velocity = Velocity.GetSafeNormal2D() * JetPack_Impulse; //JetInitial Impulse on PreviousAccel
-	}
+
+
+	Velocity = Acceleration.GetSafeNormal2D() * JetPack_Impulse; //JetInitial Impulse on PreviousAccel
 
 
 	SetMovementMode(MOVE_Custom, CMOVE_JET);
@@ -225,13 +231,13 @@ void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iteration
 	//JetPack Thrust
 	if (Acceleration.Length() > 0.001)
 	{
-		Velocity += JetPack_Thrust * Acceleration.GetSafeNormal2D() * DeltaTime;
+		Velocity += JetPack_MaxSpeed * Acceleration.GetSafeNormal2D() * DeltaTime;
 	}
 	//Jetpack Gravity
 	Velocity += JetPack_Gravity * FVector::DownVector * DeltaTime;
 	if (bThrust)
 	{
-		Velocity += JetPack_Thrust * FVector::UpVector * DeltaTime;
+		Velocity += JetPack_MaxSpeed* JetThrustUpCoeff * FVector::UpVector * DeltaTime;
 	}
 	//Jetpack Steer
 	//JetPack Left Right
@@ -284,8 +290,7 @@ void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iteration
 
 bool UCombatCharacterMovementComponent::GetJetSurface(FHitResult& Hit)
 {
-	//UpdatedComponent->GetComponentLocation();
-	FVector Start = CombatOwnerCharacter->GetActorLocation();
+	FVector Start = UpdatedComponent->GetComponentLocation();
 	FVector End = Start + FVector::DownVector * MaxJetAltitude;
 	FName ProfileName = TEXT("BlockAll");
 

@@ -45,7 +45,6 @@ void UCombatAbilitySystemComponent::AddWeaponEquipAbilities(
 void UCombatAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid())return;
-
 	for (auto& AbilitySpec : GetActivatableAbilities())
 	{
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
@@ -54,7 +53,6 @@ void UCombatAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& Inpu
 			if (!AbilitySpec.IsActive())
 			{
 				TryActivateAbility(AbilitySpec.Handle);
-				
 			}
 		}
 	}
