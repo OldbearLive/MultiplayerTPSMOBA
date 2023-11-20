@@ -155,8 +155,6 @@ bool UCombatCharacterMovementComponent::IsMovingOnGround() const
 
 void UCombatCharacterMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
-	
-	
 	if (!IsCustomMovementMode(CMOVE_JET) && Safe_bWantsToJetPack)
 	{
 		EnterJet();
@@ -189,7 +187,7 @@ void UCombatCharacterMovementComponent::EnterJet()
 	Safe_bWantsToJetPack = true;
 
 	FHitResult SurfaceHit;
-	
+
 	if (Acceleration.Size2D() < 0.1 && GetJetSurface(SurfaceHit))
 	{
 		Velocity = FVector::UpVector * JetPack_Impulse; //JetInitial Impulse on No Accel
@@ -237,7 +235,7 @@ void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iteration
 	Velocity += JetPack_Gravity * FVector::DownVector * DeltaTime;
 	if (bThrust)
 	{
-		Velocity += JetPack_MaxSpeed* JetThrustUpCoeff * FVector::UpVector * DeltaTime;
+		Velocity += JetPack_MaxSpeed * JetThrustUpCoeff * FVector::UpVector * DeltaTime;
 	}
 	//Jetpack Steer
 	//JetPack Left Right
@@ -297,7 +295,8 @@ bool UCombatCharacterMovementComponent::GetJetSurface(FHitResult& Hit)
 	auto result = GetWorld()->LineTraceSingleByProfile(Hit, Start, End, ProfileName,
 	                                                   CombatOwnerCharacter->GetIgnoreCharacterParams());
 
-	DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.TraceEnd, FColor::Magenta, true, 5.0f, 0, 5);
+	// Surface Check for Jet Conditions
+	/*DrawDebugLine(GetWorld(), Hit.TraceStart, Hit.TraceEnd, FColor::Magenta, true, 5.0f, 0, 5);*/
 	return result;
 }
 
