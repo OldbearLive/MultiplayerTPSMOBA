@@ -142,8 +142,17 @@ void ACombatPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void ACombatPlayerController::Look(const FInputActionValue& InputActionValue)
 {
-	const FVector2d LookAxisVector = InputActionValue.Get<FVector2d>();
-
+	FVector2d LookAxisVector;
+	if (CombatCharacter)
+	{
+		LookAxisVector=InputActionValue.Get<FVector2d>() * CombatCharacter->CameraSensitivity;
+		if (APawn* ControlledPawn = GetPawn<APawn>())
+		{
+			ControlledPawn->AddControllerPitchInput(LookAxisVector.Y);
+			ControlledPawn->AddControllerYawInput(LookAxisVector.X);
+		}
+	}
+	LookAxisVector = InputActionValue.Get<FVector2d>();
 	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
 		ControlledPawn->AddControllerPitchInput(LookAxisVector.Y);

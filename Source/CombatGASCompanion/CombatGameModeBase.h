@@ -17,6 +17,6 @@ class COMBATGASCOMPANION_API ACombatGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly,Category= "Character ClassDefaults")
-	TObjectPtr<UCombatCharacterClassInfo> CharacterClassInfo;
+	UPROPERTY(EditDefaultsOnly, Category= "Character ClassDefaults")
+	TObjectPtr<UCombatCharacterClassInfo> CombatCharacterClassInfo;
 };

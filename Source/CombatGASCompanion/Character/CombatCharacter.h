@@ -71,6 +71,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
 	bool bIsWeaponEquipped;
 
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Jet")
+	bool bIsJet;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Jet")
+	bool bIsDash;
+
+	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Jet")
+	bool bIsBoost;
+
 	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
 	TArray<TObjectPtr<ACombatRangedWeapon>> CombatRangedWeaponsArray;
 
@@ -88,6 +97,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Replicated, Category = "Weapon")
 	TArray<int32> MaxReserveAmmoArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float CameraSensitivity = 1.0f;;
 
 
 	UPROPERTY(EditDefaultsOnly, Category= "Combat")
@@ -125,6 +137,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|UI|Attributes")
 	FOnAttributeChangedSignature OnMaxEnergyChangedSignature;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	class USpringArmComponent* CameraBoom;
+
 protected:
 	//AimVariables
 
@@ -149,9 +164,6 @@ private:
 
 	ETurningInPlace TurnInPlace;
 
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera")
-	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class UCameraComponent* CameraComponent;
@@ -213,4 +225,13 @@ public:
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
 
 	FVector GetHitTarget() const;
+
+	//Setters
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetJetPacking(bool bJet);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SetDashing(bool bDash);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SetBoosting(bool bBoost);
 };

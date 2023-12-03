@@ -65,4 +65,8 @@ public:
 	AActor* GetAvatar();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	TArray<FTaggedMontage> GetAttackMontages();
+
+	//LOCKON
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "LockON")
+	void LockOn();
 };

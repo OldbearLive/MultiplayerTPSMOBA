@@ -50,7 +50,8 @@ public:
  FGameplayTag InputTag_3;
  FGameplayTag InputTag_4;
  FGameplayTag InputTag_Jump;
- FGameplayTag InputTag_Sprint;
+ FGameplayTag InputTag_Dash;
+ FGameplayTag InputTag_Jet;
 
  //DAMAGE
 

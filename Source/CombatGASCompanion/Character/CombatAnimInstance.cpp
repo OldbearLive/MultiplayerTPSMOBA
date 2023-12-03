@@ -37,11 +37,15 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 
 	//Direction = UKismetAnimationLibrary::CalculateDirection(Velocity,CombatCharacter->GetActorRotation());
 
-	bIsInAir = CombatCharacter->CombatCharacterMovementComponent->IsFalling()||CombatCharacter->CombatCharacterMovementComponent->IsCustomMovementMode(CMOVE_JET);
+	bIsInAir = CombatCharacter->CombatCharacterMovementComponent->IsFalling() || CombatCharacter->
+		CombatCharacterMovementComponent->IsCustomMovementMode(CMOVE_JET);
 
 	bIsAccelerating = CombatCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size2D() > 0.f ? true : false;
 
 	bWeaponEquipped = CombatCharacter->GetWeaponEquip();
+	bJet = CombatCharacter->bIsJet;
+	bDash = CombatCharacter->bIsDash;
+	bBoost = CombatCharacter->bIsBoost;
 
 	SelectedWeaponIndex = CombatCharacter->ActiveWeaponIndex;
 
@@ -67,7 +71,7 @@ void UCombatAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
 	AO_Pitch = CombatCharacter->GetAO_Pitch();
 	TurnInPlace = CombatCharacter->GetTurningInPlace();
 	bRotateRootBone = CombatCharacter->ShouldRotateRootBone();
-	
+
 	EquippedWeapon = CombatCharacter->GetCurrentWeapon();
 	if (EquippedWeapon && bWeaponEquipped && CombatCharacter->GetMesh())
 	{

@@ -6,8 +6,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CombatCharacterMovementComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndJet)
+;
+
 UENUM(BlueprintType)
-enum ECustomMovementMode
+enum ECombatCustomMovementMode
 {
 	CMOVE_NONE UMETA(Hidden),
 	CMOVE_JET UMETA(DisplayName = "Jet"),
@@ -72,6 +75,9 @@ public:
 	float JetPack_MaxSpeed = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float JetPack_BoosMaxSpeed = 2000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float JetPack_Impulse = 5000.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -88,10 +94,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float MaxJetAltitude = 3000.0f;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnEndJet EndJet;
 
 #pragma endregion
 
 #pragma region Transient
+
 	bool Safe_bWantsToSprint;
 
 	bool Safe_bWantsToJetPack;
@@ -110,9 +119,9 @@ public:
 protected:
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
-	
+
 	virtual void InitializeComponent() override;
 
 	virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
@@ -132,6 +141,10 @@ public:
 	//BLueprintExposed Functions
 public:
 	UPROPERTY(BlueprintReadWrite)
+	bool bBoost = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bDash = false;
+	UPROPERTY(BlueprintReadWrite)
 	bool bThrust = false;
 	UFUNCTION(BlueprintCallable)
 	void JetPressed();
@@ -140,7 +153,7 @@ public:
 #pragma endregion
 
 	UFUNCTION(BlueprintCallable)
-	bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode);
+	bool IsCustomMovementMode(ECombatCustomMovementMode InCustomMovementMode);
 
 private:
 #pragma region JetPack c++ Funtions

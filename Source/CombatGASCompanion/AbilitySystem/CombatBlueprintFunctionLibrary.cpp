@@ -59,7 +59,7 @@ void UCombatBlueprintFunctionLibrary::InitializeDefaultAttributes(const UObject*
 	if (CombatGameModeBase == nullptr)return;
 
 	AActor* AvatarActor = ASC->GetAvatarActor();
-	UCombatCharacterClassInfo* ClassInfo = CombatGameModeBase->CharacterClassInfo;
+	UCombatCharacterClassInfo* ClassInfo = CombatGameModeBase->CombatCharacterClassInfo;
 
 	FCharacterClassInfo ClassDefaultInfo = ClassInfo->GetClassDefaultsInfo(CharacterClass);
 
@@ -203,5 +203,5 @@ UCombatCharacterClassInfo* UCombatBlueprintFunctionLibrary::GetCharacterClassInf
 
 	if (CombatGameModeBase == nullptr)return nullptr;
 
-	return CombatGameModeBase->CharacterClassInfo;
+	return CombatGameModeBase->CombatCharacterClassInfo;
 }

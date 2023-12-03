@@ -4,9 +4,11 @@
 #include "CombatCharacterMovementComponent.h"
 
 #include "CombatCharacter.h"
+#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 
 #include "GameFramework/Character.h"
+#include "Net/UnrealNetwork.h"
 
 
 UCombatCharacterMovementComponent::UCombatCharacterMovementComponent()
@@ -121,6 +123,11 @@ void UCombatCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 	Safe_bWantsToJetPack = (Flags & FSavedMove_Character::FLAG_Custom_1) != 0;
 }
 
+void UCombatCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
 
 void UCombatCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation,
                                                           const FVector& OldVelocity)
@@ -186,19 +193,23 @@ void UCombatCharacterMovementComponent::EnterJet()
 {
 	Safe_bWantsToJetPack = true;
 
-	FHitResult SurfaceHit;
 
-	if (Acceleration.Size2D() < 0.1 && GetJetSurface(SurfaceHit))
+	CombatOwnerCharacter->Server_SetJetPacking(true);
+
+	if (bDash) // If Dashing, SetVelocity for Dash and Enter Jet Movement Mode
 	{
-		Velocity = FVector::UpVector * JetPack_Impulse; //JetInitial Impulse on No Accel
-		SetMovementMode(MOVE_Custom, CMOVE_JET);
-		return;
+		if (Acceleration.Size2D() < 0.1)
+		{
+			Velocity = FVector::UpVector * JetPack_Impulse;
+			//ON Dash no Movement and Activate Jet dash Upward
+		}
+		else
+		{
+			//ON Dash Just Dash and Activate Jet
+			Velocity = Acceleration.GetSafeNormal2D() * JetPack_Impulse;
+			//JetInitial Impulse on PreviousAccel
+		}
 	}
-
-
-	Velocity = Acceleration.GetSafeNormal2D() * JetPack_Impulse; //JetInitial Impulse on PreviousAccel
-
-
 	SetMovementMode(MOVE_Custom, CMOVE_JET);
 }
 
@@ -206,11 +217,17 @@ void UCombatCharacterMovementComponent::ExitJet()
 {
 	Safe_bWantsToJetPack = false;
 
+	CombatOwnerCharacter->Server_SetJetPacking(false);
+
+	EndJet.Broadcast();
+
 	FQuat NewRotation = FRotationMatrix::MakeFromXZ(UpdatedComponent->GetForwardVector().GetSafeNormal2D(),
 	                                                FVector::UpVector).ToQuat();
 	FHitResult HitResult;
 	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, HitResult);
-	SetMovementMode(MOVE_Falling);
+
+
+	SetMovementMode(MOVE_Walking);
 }
 
 void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iterations)
@@ -225,28 +242,68 @@ void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iteration
 		StartNewPhysics(DeltaTime, Iterations);
 		return;
 	}
+	const bool bCanBoost = bBoost;
+	const bool bCanDash = bDash && !bBoost;
+	const bool bCanThrust = bThrust && !bDash && !bBoost;
+	const bool bCanHover = !bDash && !bBoost;
+	const bool bUseGravity = !bDash && !bBoost;
+	if (bCanDash)
+	{
+		if (Acceleration.Size2D() < 0.1)
+		{
+			Velocity = FVector::UpVector * JetPack_Impulse;
 
-	//JetPack Thrust
-	if (Acceleration.Length() > 0.001)
+			//ON Dash no Movement and Activate Jet dash Upward
+		}
+		else
+		{
+			//ON Dash Just Dash and Activate Jet
+			Velocity = Acceleration.GetSafeNormal2D() * JetPack_Impulse;
+			//JetInitial Impulse on PreviousAccel
+		}
+	}
+	//JetPack movement
+	if (Acceleration.Length() > 0.001 && bCanHover)
 	{
 		Velocity += JetPack_MaxSpeed * Acceleration.GetSafeNormal2D() * DeltaTime;
 	}
 	//Jetpack Gravity
-	Velocity += JetPack_Gravity * FVector::DownVector * DeltaTime;
-	if (bThrust)
+	if (bUseGravity)
+	{
+		Velocity += JetPack_Gravity * FVector::DownVector * DeltaTime;
+	}
+	if (bCanThrust)
 	{
 		Velocity += JetPack_MaxSpeed * JetThrustUpCoeff * FVector::UpVector * DeltaTime;
 	}
+	//JetPackHover Acceleration Read
 	//Jetpack Steer
 	//JetPack Left Right
-	if (FMath::Abs(FVector::DotProduct(Acceleration.GetSafeNormal2D(), UpdatedComponent->GetRightVector())) > 0.5)
+	if (!bBoost)
 	{
-		Acceleration = Acceleration.ProjectOnTo(UpdatedComponent->GetRightVector());
+		if (FMath::Abs(FVector::DotProduct(Acceleration.GetSafeNormal2D(), UpdatedComponent->GetRightVector())) > 0.5)
+		{
+			Acceleration = Acceleration.ProjectOnTo(UpdatedComponent->GetRightVector());
+		}
+		//Jetpack Move Forward
+		if (FMath::Abs(FVector::DotProduct(Acceleration.GetSafeNormal2D(), UpdatedComponent->GetForwardVector())) > 0.5)
+		{
+			Acceleration = Acceleration.ProjectOnTo(UpdatedComponent->GetForwardVector());
+		}
 	}
-	if (FMath::Abs(FVector::DotProduct(Acceleration.GetSafeNormal2D(), UpdatedComponent->GetForwardVector())) > 0.5)
+	if (bBoost)
 	{
-		Acceleration = Acceleration.ProjectOnTo(UpdatedComponent->GetForwardVector());
+		Velocity += JetPack_BoosMaxSpeed * CombatOwnerCharacter->GetCameraComponent()->GetForwardVector() * DeltaTime;
+		if (FMath::Abs(FVector::DotProduct(Acceleration.GetSafeNormal2D(), UpdatedComponent->GetRightVector())) > 0.5)
+		{
+			Acceleration = Acceleration.ProjectOnTo(UpdatedComponent->GetRightVector());
+		}
+		if (FMath::Abs(FVector::DotProduct(Acceleration.GetSafeNormal2D(), UpdatedComponent->GetForwardVector())) > 0.5)
+		{
+			Acceleration = FVector::ZeroVector;
+		}
 	}
+
 
 	//Calc Velocity
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
@@ -320,7 +377,7 @@ void UCombatCharacterMovementComponent::JetReleased()
 	Safe_bWantsToJetPack = false;
 }
 
-bool UCombatCharacterMovementComponent::IsCustomMovementMode(ECustomMovementMode InCustomMovementMode)
+bool UCombatCharacterMovementComponent::IsCustomMovementMode(ECombatCustomMovementMode InCustomMovementMode)
 {
 	return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
 }

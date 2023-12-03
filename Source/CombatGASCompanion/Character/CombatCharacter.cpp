@@ -70,6 +70,9 @@ void ACombatCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION(ACombatCharacter, MaxAmmoClipArray, COND_None);
 	DOREPLIFETIME_CONDITION(ACombatCharacter, ReserveAmmoArray, COND_None);
 	DOREPLIFETIME_CONDITION(ACombatCharacter, MaxReserveAmmoArray, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, bIsJet, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, bIsDash, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatCharacter, bIsBoost, COND_None);
 }
 
 void ACombatCharacter::PossessedBy(AController* NewController)
@@ -270,6 +273,21 @@ FVector ACombatCharacter::GetHitTarget() const
 		return FVector();
 	}
 	return PlayerController->HitTarget;
+}
+
+void ACombatCharacter::Server_SetDashing_Implementation(bool bDash)
+{
+	bIsDash = bDash;
+}
+
+void ACombatCharacter::Server_SetBoosting_Implementation(bool bBoost)
+{
+	bIsBoost = bBoost;
+}
+
+void ACombatCharacter::Server_SetJetPacking_Implementation(bool bJet)
+{
+	bIsJet = bJet;
 }
 
 

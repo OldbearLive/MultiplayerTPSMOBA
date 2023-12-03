@@ -19,7 +19,6 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	//virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
-	
 
 protected:
 
@@ -51,6 +50,13 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
 	bool bAiming;
+
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
+	bool bJet;
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
+	bool bDash;
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
+	bool bBoost;
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess="true"))
 	float YawOffset;

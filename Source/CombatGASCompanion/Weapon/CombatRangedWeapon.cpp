@@ -49,6 +49,8 @@ void ACombatRangedWeapon::Tick(float DeltaTime)
 void ACombatRangedWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ACombatRangedWeapon, WeaponPropertiesStructure, COND_None);
 }
 
 void ACombatRangedWeapon::Fire()

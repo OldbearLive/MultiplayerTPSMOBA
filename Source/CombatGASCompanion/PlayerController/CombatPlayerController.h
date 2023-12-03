@@ -76,22 +76,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> LookAction;
 
-	/*//InputMappingContext Jump -> Set in BP
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> JumpAction;
-
-	//InputMappingContext Equip -> Set in BP
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> EquipAction;
-
-	//InputMappingContext Aim -> Set in BP
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> AimAction;
-
-	//InputMappingContext Fire -> Set in BP
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> FireAction;*/
-
 	/*
 	 *
 	 **InputActionFunctions SECTION
