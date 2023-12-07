@@ -140,6 +140,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	class UCameraComponent* CameraComponent;
+
 protected:
 	//AimVariables
 
@@ -163,10 +166,6 @@ private:
 	//TurnInPlace
 
 	ETurningInPlace TurnInPlace;
-
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera")
-	class UCameraComponent* CameraComponent;
 
 
 	//CameraHideFunction

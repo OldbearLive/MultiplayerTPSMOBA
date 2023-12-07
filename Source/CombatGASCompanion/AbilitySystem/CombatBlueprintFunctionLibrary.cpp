@@ -5,6 +5,7 @@
 
 #include "CombatAbilityTypes.h"
 #include "CombatGASCompanion/CombatGameModeBase.h"
+#include "CombatGASCompanion/CombatGASCompanion.h"
 #include "CombatGASCompanion/HUD/CombatHUD.h"
 #include "CombatGASCompanion/Interfaces/CombatInterface.h"
 #include "CombatGASCompanion/PlayerController/CombatPlayerState.h"
@@ -163,10 +164,9 @@ void UCombatBlueprintFunctionLibrary::GetLivePlayersWithinRadius(const UObject* 
 	TArray<FOverlapResult> Overlaps;
 	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContext, EGetWorldErrorMode::LogAndReturnNull))
 	{
-		World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity,
-		                                FCollisionObjectQueryParams(
-			                                FCollisionObjectQueryParams::InitType::AllDynamicObjects),
-		                                FCollisionShape::MakeSphere(Radius), CollisionParams);
+		World->OverlapMultiByChannel(Overlaps, SphereOrigin, FQuat::Identity,
+		                             ECC_SkeletalMesh,
+		                             FCollisionShape::MakeSphere(Radius), CollisionParams);
 		for (auto OverlapResults : Overlaps)
 		{
 			const bool ImplementsInterface = OverlapResults.GetActor()->Implements<UCombatInterface>();

@@ -109,8 +109,8 @@ FNetworkPredictionData_Client* UCombatCharacterMovementComponent::GetPredictionD
 		UCombatCharacterMovementComponent* MutableThis = const_cast<UCombatCharacterMovementComponent*>(this);
 
 		MutableThis->ClientPredictionData = new FNetworkPredictionData_Client_Combat(*this);
-		MutableThis->ClientPredictionData->MaxSmoothNetUpdateDist = 100.0f;
-		MutableThis->ClientPredictionData->NoSmoothNetUpdateDist = 200.0f;
+		MutableThis->ClientPredictionData->MaxSmoothNetUpdateDist = 200;
+		MutableThis->ClientPredictionData->NoSmoothNetUpdateDist = 600.0f;
 	}
 	return ClientPredictionData;
 }
