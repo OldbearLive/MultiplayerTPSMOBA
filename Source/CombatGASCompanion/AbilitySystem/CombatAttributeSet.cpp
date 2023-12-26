@@ -19,8 +19,6 @@ UCombatAttributeSet::UCombatAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Spirit, GetSpiritAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Technique, GetTechniqueAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Primary_Toughness, GetToughnessAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_Battery, GetBatteryAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Tertiary_MaxBattery, GetMaxBatteryAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Energy, GetEnergyAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Health, GetHealthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_EnergyEfficiency, GetEnergyEfficiencyAttribute);
@@ -205,6 +203,12 @@ void UCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCall
 				}*/
 			}
 		}
+	}
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		const float LocalIncomingXP = GetIncomingXP();
+		SetIncomingXP(0.f);
+		UE_LOG(LogTemp, Warning, TEXT("XP Changed:%f"), LocalIncomingXP);
 	}
 }
 

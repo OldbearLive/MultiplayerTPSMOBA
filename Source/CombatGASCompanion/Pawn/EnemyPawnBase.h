@@ -58,9 +58,9 @@ protected:
 
 protected:
 	// Called to bind functionality to input
-private:
 	UPROPERTY(EditAnywhere, Category = "Abilities|DefaultAbilities")
-	TArray<TSubclassOf<UGameplayAbility>> StartupAbiity;
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbility;
+private:
 
 public:
 	

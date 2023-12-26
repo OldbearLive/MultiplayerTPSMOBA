@@ -51,6 +51,8 @@ ACombatCharacter::ACombatCharacter(const FObjectInitializer& ObjectInitializer):
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxSpeed;
 
+	CharacterClass = ECharacterClass::Humanoid;
+
 	TurnInPlace = ETurningInPlace::ETIP_NotTurning;
 
 	NetUpdateFrequency = 66.0f;
@@ -107,6 +109,11 @@ int32 ACombatCharacter::GetPlayerLevel()
 	return 0;
 }
 
+ECharacterClass ACombatCharacter::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
+}
+
 void ACombatCharacter::InitAbilityActorInfo()
 {
 	ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
@@ -128,8 +135,7 @@ void ACombatCharacter::InitAbilityActorInfo()
 	}
 
 	InitializeDefaultAttributes();
-
-
+	
 	if (UCombatAttributeSet* CombatAttributeSet = Cast<UCombatAttributeSet>(AttributeSet))
 	{
 		//Lambdas to bind to Delegates
@@ -200,7 +206,7 @@ void ACombatCharacter::Tick(float DeltaTime)
 	else
 	{
 		TimeSinceLastMovementReplication += DeltaTime;
-		if (TimeSinceLastMovementReplication > 0.25f)
+		if (TimeSinceLastMovementReplication > 0.15f)
 		{
 			OnRep_ReplicatedMovement();
 		}

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "CombatGASCompanion/AbilitySystem/Data/CombatCharacterClassInfo.h"
 #include "UObject/Interface.h"
 #include "CombatInterface.generated.h"
 
@@ -69,4 +70,8 @@ public:
 	//LOCKON
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "LockON")
 	void LockOn();
+
+	//GetCharacterClass
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "CharacterClass")
+	ECharacterClass GetCharacterClass();
 };

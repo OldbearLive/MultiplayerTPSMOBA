@@ -196,6 +196,19 @@ bool UCombatBlueprintFunctionLibrary::IsNotFriend(AActor* FirstActor, AActor* Se
 	return !bFriends;
 }
 
+int32 UCombatBlueprintFunctionLibrary::XPRewardForClassAndLevel(const UObject* WorldContext,
+                                                                ECharacterClass CharacterClass, int32 InLevel)
+{
+	ACombatGameModeBase* CombatGameModeBase = Cast<ACombatGameModeBase>(
+		UGameplayStatics::GetGameMode(WorldContext));
+	UCombatCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContext);
+	if (CharacterClassInfo == nullptr)return 0;
+	FCharacterClassInfo Info = CharacterClassInfo->GetClassDefaultsInfo(CharacterClass);
+	float XPReward = Info.XPReward.GetValueAtLevel(InLevel);
+
+	return static_cast<int32>(XPReward);
+}
+
 UCombatCharacterClassInfo* UCombatBlueprintFunctionLibrary::GetCharacterClassInfo(const UObject* WorldContext)
 {
 	const ACombatGameModeBase* CombatGameModeBase = Cast<ACombatGameModeBase>(

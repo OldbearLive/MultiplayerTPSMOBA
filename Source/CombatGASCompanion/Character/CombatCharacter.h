@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CombatCharacterMovementComponent.h"
+#include "CombatGASCompanion/AbilitySystem/Data/CombatCharacterClassInfo.h"
 #include "CombatGASCompanion/CombatTypes/TurnInPlace.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
 #include "CombatGASCompanion/UI/OverlayWidgetController.h"
@@ -46,9 +47,13 @@ public:
 	//Set ASC and Attributeset from Playerstate
 	virtual void OnRep_PlayerState() override;
 
-	//Get Level From CombatInterface
+	//CombatInterface
 	virtual int32 GetPlayerLevel() override;
 
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
+
+
+	//END CombatInterface
 
 	virtual void PostInitializeComponents() override;
 
@@ -101,6 +106,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float CameraSensitivity = 1.0f;;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Class Defaults")
+	ECharacterClass CharacterClass = ECharacterClass::Humanoid;
 
 	UPROPERTY(EditDefaultsOnly, Category= "Combat")
 	float DefaultMaxSpeed = 600;

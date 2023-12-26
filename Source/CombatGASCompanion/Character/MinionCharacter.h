@@ -6,6 +6,7 @@
 #include "CombatGASCompanion/AbilitySystem/Data/CombatCharacterClassInfo.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
 #include "CombatGASCompanion/Pawn/EnemyPawnBase.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "CombatGASCompanion/UI/OverlayWidgetController.h"
 #include "MinionCharacter.generated.h"
 
@@ -36,7 +37,8 @@ public:
 	virtual int32 GetPlayerLevel() override;
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
-
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	
 	virtual void Die() override;
 
 	virtual void MulticastHandleDeath() override;
@@ -76,7 +78,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	int32 Level = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character Class Defaults")
 	ECharacterClass CharacterClass = ECharacterClass::Walker;
 
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 TagCount);
@@ -89,6 +91,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<ACombatAIController> CombatAIController;
+
+	UPROPERTY()
+	TObjectPtr<ACombatPlayerController> CombatPlayerController;
 
 private:
 	//HEALTH AND ENERGY DELEGATES

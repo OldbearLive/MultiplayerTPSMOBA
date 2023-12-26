@@ -71,15 +71,7 @@ void FCombatGameplayTags::InitializeNativeGameplayTags()
 		FString(
 			"L(Native) EnergyRegeneration"));
 
-	/* BATTERY/TERTIARY ATTRIBUTES */
-	GameplayTags.Attributes_Tertiary_Battery = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Attributes.Tertiary.Battery"),
-		FString(
-			"L(Native) Battery"));
-	GameplayTags.Attributes_Tertiary_MaxBattery = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Attributes.Tertiary.MaxBattery"),
-		FString(
-			"L(Native) MaxBattery"));
+	
 
 	/* InputTags */
 	GameplayTags.InputTag_Primary = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -167,6 +159,11 @@ void FCombatGameplayTags::InitializeNativeGameplayTags()
 		FString(
 			"Attack Ability Tag"));
 
+	//Meta Tags
+	GameplayTags.Attributes_Meta_IncomingXP = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Attributes.Meta.IncomingXP"),
+	FString(
+		"Attack Ability Tag"));
 	//MAP OF DAMAGETYPES TO RESISTANCES
 
 	GameplayTags.DamageTypesToResistances.Add(GameplayTags.Damage_PhysicalDamage,GameplayTags.Attrributes_Resistance_Physical);

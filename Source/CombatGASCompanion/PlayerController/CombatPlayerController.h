@@ -33,7 +33,7 @@ public:
 
 	virtual void PlayerTick(float DeltaTime) override;
 	void CreateDamageWidget(float DamageAmount, bool bIsShieldHit, bool IsOverloadHit,
-	                        UDamageTextComponent* DamageText, const FVector inWorldPos );
+	                        UDamageTextComponent* DamageText, const FVector inWorldPos);
 
 	FVector HitTarget;
 
@@ -54,9 +54,8 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:
+	ACharacter* CombatCharacter;
 
-	ACombatCharacter* CombatCharacter;
-	
 	//InputMappingContext -> Set in BP
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CombatContext;

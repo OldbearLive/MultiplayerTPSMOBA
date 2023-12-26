@@ -11,6 +11,7 @@
 #include "CombatGASCompanion/AbilitySystem/CombatAttributeSet.h"
 #include "CombatGASCompanion/AbilitySystem/CombatBlueprintFunctionLibrary.h"
 #include "CombatGASCompanion/AI/CombatAIController.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerState.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -41,14 +42,27 @@ void AMinionCharacter::PossessedBy(AController* NewController)
 
 	if (!HasAuthority()) return;
 	CombatAIController = Cast<ACombatAIController>(NewController);
+	if (IsValid(CombatAIController))
+	{
+		CombatPlayerController = nullptr;
+		CombatAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+		CombatAIController->RunBehaviorTree(BehaviorTree);
+		CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
 
-	CombatAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
-	CombatAIController->RunBehaviorTree(BehaviorTree);
-	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
-
-	CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),
-	                                                             CharacterClass == ECharacterClass::Biped
-	                                                             /*Add all the ranged Character classes here*/);
+		CombatAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"),
+		                                                             CharacterClass == ECharacterClass::Biped
+		                                                             || CharacterClass == ECharacterClass::Walker);
+	}
+	else
+	{
+		CombatAIController = nullptr;
+		CombatPlayerController = Cast<ACombatPlayerController>(NewController);
+		if (CombatPlayerController)
+		{
+			EnableInput(CombatPlayerController);
+			InitAbilityActorInfo();
+		}
+	}
 }
 
 
@@ -116,6 +130,11 @@ AActor* AMinionCharacter::GetCombatTarget_Implementation() const
 	return CombatTarget;
 }
 
+ECharacterClass AMinionCharacter::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
+}
+
 void AMinionCharacter::Die()
 {
 	SetLifeSpan(10);
@@ -129,7 +148,6 @@ void AMinionCharacter::Die()
 void AMinionCharacter::MulticastHandleDeath()
 {
 	Super::MulticastHandleDeath();
-
 }
 
 
@@ -146,12 +164,27 @@ AActor* AMinionCharacter::GetAvatar_Implementation()
 
 void AMinionCharacter::InitAbilityActorInfo()
 {
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	Cast<UCombatAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
-	if (HasAuthority())
+	if (CombatPlayerController)
 	{
-		InitializeDefaultAttributes();
+		ACombatPlayerState* CombatPlayerState = GetPlayerState<ACombatPlayerState>();
+		check(CombatPlayerState);
+		UCombatAbilitySystemComponent* PlayerStateAsc = Cast<UCombatAbilitySystemComponent>(
+			CombatPlayerState->GetAbilitySystemComponent());
+		PlayerStateAsc->InitAbilityActorInfo(CombatPlayerState, this);
+		PlayerStateAsc->ClearAllAbilities();
+		PlayerStateAsc->AddCharacterAbilities(StartupAbility);
+		PlayerStateAsc->AbilityActorInfoSet();
 	}
+	else
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		Cast<UCombatAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+		if (HasAuthority())
+		{
+			InitializeDefaultAttributes();
+		}
+	}
+
 
 	if (UCombatAttributeSet* CombatAttributeSet = Cast<UCombatAttributeSet>(AttributeSet))
 	{

@@ -36,10 +36,11 @@ public:
  FGameplayTag Attributes_Secondary_OverloadDamage;
  FGameplayTag Attributes_Secondary_HealthRegeneration;
  FGameplayTag Attributes_Secondary_EnergyRegeneration;
- //BATTERY
- FGameplayTag Attributes_Tertiary_Battery;
- FGameplayTag Attributes_Tertiary_MaxBattery;
+
+
+ //ATTRIBUTES META TAGS
  
+ FGameplayTag Attributes_Meta_IncomingXP;
  
 //InputTags
 

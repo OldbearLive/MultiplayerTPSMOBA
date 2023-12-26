@@ -148,7 +148,7 @@ void UCombatDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomEx
 	{
 		UCombatBlueprintFunctionLibrary::SetIsShieldHit(LocalEffectContextHandle, bIsShieldHit);
 		//IsEnergyDamage
-		Damage = FMath::Max(1, Damage - TargetEnergyEfficiency);
+		Damage = FMath::Max(1, Damage - TargetEnergyEfficiency*0.25f);
 		EnergyDamage = Damage;
 		FGameplayModifierEvaluatedData EvaluatedData(UCombatAttributeSet::GetIncomingDamageAttribute(),
 		                                             EGameplayModOp::Additive, Damage);

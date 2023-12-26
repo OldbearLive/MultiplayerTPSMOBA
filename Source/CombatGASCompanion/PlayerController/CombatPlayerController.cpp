@@ -9,6 +9,7 @@
 #include "GameplayTagContainer.h"
 #include "CombatGASCompanion/AbilitySystem/CombatAbilitySystemComponent.h"
 #include "CombatGASCompanion/Character/CombatCharacter.h"
+#include "CombatGASCompanion/Character/MinionCharacter.h"
 #include "CombatGASCompanion/Input/CombatEnhancedInputComponent.h"
 #include "CombatGASCompanion/Interfaces/CombatInterface.h"
 #include "CombatGASCompanion/Interfaces/InteractWithCrosshairsInterface.h"
@@ -115,8 +116,23 @@ void ACombatPlayerController::SetupInputComponent()
 void ACombatPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (CombatCharacter) CombatCharacter = nullptr;
-	CombatCharacter = Cast<ACombatCharacter>(InPawn);
+	if (CombatCharacter)
+	{
+		CombatCharacter = nullptr;
+	}
+	ACombatCharacter* CombatPlayerCharacter = Cast<ACombatCharacter>(InPawn);
+	if (CombatPlayerCharacter)
+	{
+		CombatCharacter = CombatPlayerCharacter;
+	}
+	else
+	{
+		AMinionCharacter* MinionCharacter = Cast<AMinionCharacter>(InPawn);
+		if (MinionCharacter)
+		{
+			CombatCharacter = MinionCharacter;
+		}
+	}
 }
 
 
@@ -145,7 +161,15 @@ void ACombatPlayerController::Look(const FInputActionValue& InputActionValue)
 	FVector2d LookAxisVector;
 	if (CombatCharacter)
 	{
-		LookAxisVector=InputActionValue.Get<FVector2d>() * CombatCharacter->CameraSensitivity;
+		const ACombatCharacter* CombatPlayerCharacter = Cast<ACombatCharacter>(CombatCharacter);
+		if (CombatPlayerCharacter)
+		{
+			LookAxisVector = InputActionValue.Get<FVector2d>() * CombatPlayerCharacter->CameraSensitivity;
+		}
+		else
+		{
+			LookAxisVector = InputActionValue.Get<FVector2d>();
+		}
 		if (APawn* ControlledPawn = GetPawn<APawn>())
 		{
 			ControlledPawn->AddControllerPitchInput(LookAxisVector.Y);
@@ -166,6 +190,17 @@ UCombatAbilitySystemComponent* ACombatPlayerController::GetCombatASC()
 	{
 		CombatAbilitySystemComponent = Cast<UCombatAbilitySystemComponent>(
 			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+		if (GetPawn() == CombatAbilitySystemComponent->GetAvatarActor())
+		{
+			return CombatAbilitySystemComponent;
+		}
+		else
+		{
+			//Check if ThePossesed Player is the same that is stored in the CombatASC
+			CombatAbilitySystemComponent = Cast<UCombatAbilitySystemComponent>(
+				UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+			return CombatAbilitySystemComponent;
+		}
 	}
 	return CombatAbilitySystemComponent;
 }
@@ -173,6 +208,7 @@ UCombatAbilitySystemComponent* ACombatPlayerController::GetCombatASC()
 void ACombatPlayerController::AbilityInputTagsPressed(FGameplayTag InputTag)
 {
 	if (GetCombatASC() == nullptr)return;
+
 	GetCombatASC()->AbilityInputTagPressed(InputTag);
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
 }

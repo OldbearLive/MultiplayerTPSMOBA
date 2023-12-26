@@ -26,13 +26,14 @@ struct FCharacterClassInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly,Category="Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryAttributes;
 
-	UPROPERTY(EditDefaultsOnly,Category="Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> ClassDefaultAbilities;
-	
-	
+
+	UPROPERTY(EditDefaultsOnly, Category="Class Defaults")
+	FScalableFloat XPReward = FScalableFloat();
 };
 
 
@@ -45,22 +46,18 @@ class COMBATGASCOMPANION_API UCombatCharacterClassInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category=" Character Class Defaults")
+	TMap<ECharacterClass, FCharacterClassInfo> CharacterClassInformation;
 
-	UPROPERTY(EditDefaultsOnly,Category=" Character Class Defaults")
-	TMap<ECharacterClass,FCharacterClassInfo> CharacterClassInformation;
-
-	UPROPERTY(EditDefaultsOnly,Category="Common Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="Common Class Defaults")
 	TSubclassOf<UGameplayEffect> SecondaryAttributes;
 
-	UPROPERTY(EditDefaultsOnly,Category="Common Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="Common Class Defaults")
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
-	UPROPERTY(EditDefaultsOnly,Category="Common Class Defaults")
+	UPROPERTY(EditDefaultsOnly, Category="Common Class Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
 
 	UFUNCTION()
 	FCharacterClassInfo GetClassDefaultsInfo(ECharacterClass CharacterClass);
-
-	
-	
 };

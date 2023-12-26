@@ -21,14 +21,22 @@ struct FHUDPackage
 	GENERATED_BODY()
 
 public:
-	class UTexture2D* CrosshairsCenter;
-	UTexture2D* CrosshairsTop;
-	UTexture2D* CrosshairsBottom;
-	UTexture2D* CrosshairsLeft;
-	UTexture2D* CrosshairsRight;
-	float CrosshairSpreadX;
-	float CrosshairSpreadY;
-	FLinearColor CrosshairColor;
+	UPROPERTY(EditDefaultsOnly)
+	class UTexture2D* CrosshairsCenter = nullptr;
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* CrosshairsTop = nullptr;
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* CrosshairsBottom = nullptr;
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* CrosshairsLeft = nullptr;
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* CrosshairsRight = nullptr;
+	UPROPERTY(EditDefaultsOnly)
+	float CrosshairSpreadX = 0.f;
+	UPROPERTY(EditDefaultsOnly)
+	float CrosshairSpreadY = 0.f;
+	UPROPERTY(EditDefaultsOnly)
+	FLinearColor CrosshairColor = FLinearColor::Red;
 };
 
 /**
@@ -49,8 +57,6 @@ protected:
 	 * 
 	 */
 public:
-	
-
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
@@ -60,7 +66,7 @@ public:
 private:
 	UPROPERTY()
 	TObjectPtr<UCombatUserWidget> OverlayWidget;
-	
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UCombatUserWidget> OverlayWidgetClass;
 
@@ -74,7 +80,7 @@ private:
 	TObjectPtr<UAttributeWidgetController> AttributeWidgetController;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UAttributeWidgetController>AttributeWidgetControllerClass;
+	TSubclassOf<UAttributeWidgetController> AttributeWidgetControllerClass;
 	/*
 	 *
 	 *Crosshair Drawing Functionality

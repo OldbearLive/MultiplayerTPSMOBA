@@ -57,4 +57,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Combat|Utilities")
 	static bool IsNotFriend(AActor* FirstActor,AActor* SecondActor);
+
+	static int32 XPRewardForClassAndLevel(const UObject* WorldContext,ECharacterClass CharacterClass, int32 InLevel);
 };

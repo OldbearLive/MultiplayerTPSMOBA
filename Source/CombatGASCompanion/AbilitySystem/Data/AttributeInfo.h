@@ -12,16 +12,16 @@ struct FCombatAttributeInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	FGameplayTag AttributeTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag AttributeTag = FGameplayTag();
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText AttributeName = FText();
-	
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText AttributeDescription = FText();
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FLinearColor AttributeColor = FLinearColor::White;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -37,10 +37,8 @@ class COMBATGASCOMPANION_API UAttributeInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-
 	FCombatAttributeInfo FindAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFount = false) const;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FCombatAttributeInfo> AttributeInformation;
-	
 };

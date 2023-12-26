@@ -23,6 +23,8 @@ void UCombatAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclass
 			GiveAbility(GameplayAbilitySpec);
 		}
 	}
+	bStartupAbilitiesGiven = true;
+	AbilitiesGiven.Broadcast(this);
 }
 
 void UCombatAbilitySystemComponent::AddWeaponEquipAbilities(
@@ -40,6 +42,7 @@ void UCombatAbilitySystemComponent::AddWeaponEquipAbilities(
 		GameplayAbilitySpec.DynamicAbilityTags.AddTag(CombatAbility->StartupInputTag);
 		GiveAbility(GameplayAbilitySpec);
 	}
+	AbilitiesGiven.Broadcast(this);
 }
 
 void UCombatAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
@@ -70,7 +73,7 @@ void UCombatAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& I
 			if (AbilitySpec.IsActive())
 			{
 				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle,
-								  AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+				                      AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 			}
 		}
 	}
@@ -90,6 +93,59 @@ void UCombatAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& 
 			                      AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 		}
 	}
+}
+
+void UCombatAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(AbilitySpec))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed To Execute Delegate in %hs"), __FUNCTION__);
+		}
+	}
+}
+
+FGameplayTag UCombatAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UCombatAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+		{
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+void UCombatAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+	if (!bStartupAbilitiesGiven)
+	{
+		bStartupAbilitiesGiven = true;
+		AbilitiesGiven.Broadcast(this);
+	}
+	AbilitiesGiven.Broadcast(this);
 }
 
 void UCombatAbilitySystemComponent::ClientEffectsApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,

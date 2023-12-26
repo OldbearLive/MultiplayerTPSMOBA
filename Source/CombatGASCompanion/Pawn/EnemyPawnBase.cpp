@@ -68,5 +68,5 @@ void AEnemyPawnBase::AddCharacterAbilities()
 	UCombatAbilitySystemComponent* CombatASC = CastChecked<UCombatAbilitySystemComponent>(AbilitySystemComponent);
 	if (!HasAuthority())return;
 
-	CombatASC->AddCharacterAbilities(StartupAbiity);
+	CombatASC->AddCharacterAbilities(StartupAbility);
 }

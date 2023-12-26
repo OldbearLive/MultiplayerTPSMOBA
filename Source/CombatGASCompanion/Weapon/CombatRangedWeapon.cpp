@@ -4,9 +4,11 @@
 #include "CombatRangedWeapon.h"
 
 #include "CombatGASCompanion/Character/CombatCharacter.h"
+#include "CombatGASCompanion/PlayerController/CombatPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
+
 
 // Sets default values
 ACombatRangedWeapon::ACombatRangedWeapon()
@@ -27,15 +29,30 @@ ACombatRangedWeapon::ACombatRangedWeapon()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+
 // Called when the game starts or when spawned
 void ACombatRangedWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	SetOwner(GetInstigator());
 }
 
 FVector ACombatRangedWeapon::GetCombatSocketLocation_Implementation()
 {
 	return WeaponMesh->GetSocketLocation(WeaponTipSocket);
+}
+
+void ACombatRangedWeapon::SetCrosshairPackage()
+{
+	ACombatCharacter* Player = CastChecked<ACombatCharacter>(GetOwner());
+	if (!Player)return;
+	ACombatPlayerController* PC = CastChecked<ACombatPlayerController>(Player->Controller);
+	if (!PC)return;
+	ACombatHUD* HUD = Cast<ACombatHUD>(PC->GetHUD());
+	if (HUD)
+	{
+		HUD->SetHUDPackage(WeaponCrosshair);
+	}
 }
 
 
@@ -51,6 +68,7 @@ void ACombatRangedWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ACombatRangedWeapon, WeaponPropertiesStructure, COND_None);
+	DOREPLIFETIME_CONDITION(ACombatRangedWeapon, WeaponAmmo, COND_None);
 }
 
 void ACombatRangedWeapon::Fire()

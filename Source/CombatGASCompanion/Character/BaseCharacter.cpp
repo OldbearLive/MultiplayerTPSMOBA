@@ -78,7 +78,7 @@ void ABaseCharacter::Die()
 
 void ABaseCharacter::MulticastHandleDeath_Implementation()
 {
-	GetMesh()->SetSimulatePhysics(true);
+	/*GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
@@ -86,5 +86,5 @@ void ABaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionObjectType(ECC_PhysicsBody);
 	GetMesh()->SetSimulatePhysics(true);
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);*/
 }

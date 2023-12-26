@@ -227,7 +227,7 @@ void UCombatCharacterMovementComponent::ExitJet()
 	SafeMoveUpdatedComponent(FVector::ZeroVector, NewRotation, true, HitResult);
 
 
-	SetMovementMode(MOVE_Walking);
+	SetMovementMode(MOVE_Falling);
 }
 
 void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iterations)
@@ -236,12 +236,7 @@ void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iteration
 	RestorePreAdditiveRootMotionVelocity();
 
 	FHitResult SurfaceHit;
-	if (!GetJetSurface(SurfaceHit))
-	{
-		ExitJet();
-		StartNewPhysics(DeltaTime, Iterations);
-		return;
-	}
+
 	const bool bCanBoost = bBoost;
 	const bool bCanDash = bDash && !bBoost;
 	const bool bCanThrust = bThrust && !bDash && !bBoost;
@@ -330,12 +325,7 @@ void UCombatCharacterMovementComponent::PhysJet(float DeltaTime, int32 Iteration
 		HandleImpact(HitResult, DeltaTime, Adjusted);
 		SlideAlongSurface(Adjusted, (1.0f - HitResult.Time), HitResult.Normal, HitResult, true);
 	}
-	FHitResult NewHitResult;
 
-	if (!GetJetSurface(NewHitResult))
-	{
-		ExitJet();
-	}
 	//Update OutGoingVel and Accelleration
 	if (!bJustTeleported && !HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 	{
